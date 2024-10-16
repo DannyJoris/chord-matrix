@@ -1,9 +1,5 @@
-// const { useState, useMemo } = React;
 import React, { useState, useMemo } from 'react';
 import { Chord, Note, Scale } from 'tonal';
-// import Chord from '@tonaljs/chord';
-// import { Note } from '@tonaljs/tonal';
-// import Scale from '@tonaljs/scale';
 
 const getChromaticNotes = () => {
   let note = 'C';

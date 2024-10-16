@@ -7,7 +7,7 @@
 .parcel-cache/
 
 # Development
-dist/
+# dist/
 
 # Testing
 /coverage

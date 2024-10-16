@@ -9,11 +9,13 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
     # Step 1: Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
-
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
@@ -22,7 +24,7 @@ jobs:
 
     # Step 3: Install dependencies
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     # Step 4: Build the project
     - name: Build project

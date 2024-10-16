@@ -3,11 +3,15 @@
 /.pnp
 .pnp.js
 
+# Cache
+.parcel-cache/
+.dist/
+
 # Testing
 /coverage
 
 # Production
-/build
+docs/
 
 # Misc
 .DS_Store

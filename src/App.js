@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom/client';
-
-const { Chord, Note, Scale } = Tonal;
+// const { useState, useMemo } = React;
+import React, { useState, useMemo } from 'react';
+import { Chord, Note, Scale } from 'tonal';
+// import Chord from '@tonaljs/chord';
+// import { Note } from '@tonaljs/tonal';
+// import Scale from '@tonaljs/scale';
 
 const getChromaticNotes = () => {
   let note = 'C';
@@ -154,9 +156,4 @@ const App = () => {
   )
 };
 
-// Render.
-const app = ReactDOM.createRoot(
-  document.getElementById('app')
-);
-
-app.render(<App />);
+export default App;

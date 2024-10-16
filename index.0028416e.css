@@ -1,0 +1,2 @@
+body{justify-content:center;align-items:center;min-height:100vh;display:flex}.form-elements{align-items:flex-end;gap:1rem;padding-block:1rem;display:flex}.form-select option{text-transform:capitalize}.cell-toggle{outline:2px solid pink}.cell-diatonic{background-color:rgba(var(--bs-info-rgb),.25)!important}table td,th{padding:1rem}table td:not(:first-child){cursor:pointer}
+/*# sourceMappingURL=index.0028416e.css.map */

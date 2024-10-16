@@ -1,0 +1,33 @@
+body {
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-elements {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  padding-block: 1rem;
+}
+
+.form-select option {
+  text-transform: capitalize;
+}
+
+.cell-toggle {
+  outline: 2px solid pink;
+}
+
+.cell-diatonic {
+  background-color: rgba(var(--bs-info-rgb), 0.25) !important;
+}
+
+table td, th {
+  padding: 1rem;
+}
+
+table td:not(:first-child) {
+  cursor: pointer;
+}

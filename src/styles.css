@@ -2,7 +2,7 @@ body {
   display: flex;
   min-height: 100vh;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .form-elements {
@@ -10,6 +10,8 @@ body {
   gap: 1rem;
   align-items: flex-end;
   padding-block: 1rem;
+  min-height: 100px;
+  margin-top: 3rem;
 }
 
 .form-select option {
@@ -23,7 +25,7 @@ body {
 }
 
 .cell-toggle {
-  outline: 2px solid pink;
+  outline: 2px solid hotpink;
   outline-offset: -2px;
 }
 

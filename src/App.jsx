@@ -76,7 +76,8 @@ const App = () => {
 
   const handleScale = (e) => setScale(e.target.value);
 
-  const handleShowDiatonic = () => {
+  const handleShowDiatonic = (e) => {
+    e.preventDefault();
     if (tonic && scale) {
       const scaleObj = Scale.get(`${tonic} ${scale}`);
       const notes = mapToAllFlats(scaleObj.notes);
@@ -84,6 +85,7 @@ const App = () => {
       setDiatonicNotes(scaleObj.notes);
     }
     else {
+      setDiatonicNotesFlat([]);
       setDiatonicNotes([]);
     }
   };
@@ -114,6 +116,9 @@ const App = () => {
       if (chord.aliases.includes('7')) {
         roman = `${roman}7`;
       }
+      if (chord.aliases.includes('m7')) {
+        roman = `${roman}m7`;
+      }
       if (chord.aliases.includes('Δ')) {
         roman = `${roman}Δ`;
       }
@@ -126,7 +131,7 @@ const App = () => {
 
   return (
     <>
-      <div className="form-elements">
+      <form className="form-elements" onSubmit={handleShowDiatonic}>
         <div>
           <label
             className="form-check-label"
@@ -175,8 +180,8 @@ const App = () => {
         </div>
         <div>
           <button
+            type="submit"
             className="btn btn-primary"
-            onClick={handleShowDiatonic}
           >
             Show diatonic chords
           </button>
@@ -187,7 +192,7 @@ const App = () => {
             {diatonicNotes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
           </div>
         ) : null}
-      </div>
+      </form>
       <table className="table table-bordered">
         <thead>
           <tr>

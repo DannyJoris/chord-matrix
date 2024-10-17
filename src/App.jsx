@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Chord, Note, Scale } from 'tonal';
+import { Chord, Note, Progression, Scale } from 'tonal';
 
 const getChromaticNotes = () => {
   let note = 'C';
@@ -12,23 +12,10 @@ const getChromaticNotes = () => {
   return chromaticNotes;
 };
 
-const styleAccidental = (note) => {
-  return note.length > 1 ? (<>{note[0]}<span className="accidental">{note[1]}</span></>) : note;
-};
+const replaceAccidental = (note) => note.replace('#', '♯').replace('b', '♭');
 
-const getTonicWithEnharmonic = (tonic = '', styled = true) => {
-  if (styled) {
-    return (
-      <>
-        {styleAccidental(tonic)}
-        {tonic.length > 1 && ' / '}
-        {tonic.length > 1 && styleAccidental(Note.enharmonic(tonic))}
-      </>
-    );
-  } else {
-    return `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
-  }
-};
+const getTonicWithEnharmonic = (tonic = '') =>
+  `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
 
 const getScales = () => {
   return [
@@ -101,9 +88,40 @@ const App = () => {
     }
   };
 
+  // Check if every note in the chord is present in the scale
   const isDiatonic = (chord) => {
-    // Check if every note in the chord is present in the scale
     return mapToAllFlats(chord.notes).every(note => diatonicNotesFlat.includes(note));
+  };
+
+  const isDiatonicAddRoman = (chord) => {
+    if (!['M', 'm', 'dim', '7', 'maj7', 'm7', 'm7b5'].includes(chord.aliases[0])) {
+      return;
+    }
+    if (isDiatonic(chord)) {
+      const flatFirst = mapToAllFlats(chord.notes)[0];
+      const position = diatonicNotesFlat.indexOf(flatFirst);
+      const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+      let roman = romans[position];
+      if (chord.quality === 'Minor') {
+        roman = roman.toLowerCase();
+      }
+      if (chord.quality === 'Diminished' && chord.notes.length === 3) {
+        roman = `${roman.toLowerCase()}°`;
+      }
+      if (chord.quality === 'Augmented') {
+        roman = `${roman}°`;
+      }
+      if (chord.aliases.includes('7')) {
+        roman = `${roman}7`;
+      }
+      if (chord.aliases.includes('Δ')) {
+        roman = `${roman}Δ`;
+      }
+      if (chord.aliases.includes('ø')) {
+        roman = `${roman.toLowerCase()}ø`;
+      }
+      return roman;
+    }
   };
 
   return (
@@ -127,7 +145,7 @@ const App = () => {
                 key={note}
                 value={note}
               >
-                {getTonicWithEnharmonic(note, false)}
+                {replaceAccidental(getTonicWithEnharmonic(note))}
               </option>
             ))}
           </select>
@@ -166,12 +184,7 @@ const App = () => {
         {diatonicNotes.length ? (
           <div>
             <h3>Diatonic notes</h3>
-            {diatonicNotes.map((note, index) => (
-              <React.Fragment key={index}>
-                {index > 0 && ' '}
-                {styleAccidental(Note.simplify(note))}
-              </React.Fragment>
-            ))}
+            {diatonicNotes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
           </div>
         ) : null}
       </div>
@@ -191,7 +204,7 @@ const App = () => {
           {chords.map((noteSet, i) => (
             <tr key={i}>
               <td>
-                {getTonicWithEnharmonic(noteSet[0].tonic)}
+                {replaceAccidental(getTonicWithEnharmonic(noteSet[0].tonic))}
               </td>
               {noteSet.map((chord, j) => (
                 <td
@@ -202,12 +215,12 @@ const App = () => {
                     isDiatonic(chord) ? 'cell-diatonic' : ''
                   ].join(' ')}
                 >
-                  {chord.notes.map((note, index) => (
-                    <React.Fragment key={index}>
-                      {index > 0 && ' '}
-                      {styleAccidental(Note.simplify(note))}
-                    </React.Fragment>
-                  ))}
+                  {isDiatonic(chord) ? (
+                    <span className="badge rounded-pill bg-info">
+                      {isDiatonicAddRoman(chord)}
+                    </span>
+                  ) : null}
+                  {chord.notes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
                 </td>
               ))}
             </tr>

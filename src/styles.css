@@ -22,12 +22,17 @@ body {
   font-weight: 400;
 }
 
-.accidental {
-  font-size: 0.8rem;
-}
-
 .cell-toggle {
   outline: 2px solid pink;
+  outline-offset: -2px;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(25%, -25%);
+  z-index: 1;
 }
 
 .cell-diatonic {
@@ -35,6 +40,7 @@ body {
 }
 
 table td, th {
+  position: relative;
   padding: 1rem;
 }
 

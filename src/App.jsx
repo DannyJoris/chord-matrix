@@ -12,8 +12,22 @@ const getChromaticNotes = () => {
   return chromaticNotes;
 };
 
-const getTonicWithEnharmonic = (tonic = '') => {
-  return `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
+const styleAccidental = (note) => {
+  return note.length > 1 ? (<>{note[0]}<span className="accidental">{note[1]}</span></>) : note;
+};
+
+const getTonicWithEnharmonic = (tonic = '', styled = true) => {
+  if (styled) {
+    return (
+      <>
+        {styleAccidental(tonic)}
+        {tonic.length > 1 && ' / '}
+        {tonic.length > 1 && styleAccidental(Note.enharmonic(tonic))}
+      </>
+    );
+  } else {
+    return `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
+  }
 };
 
 const getScales = () => {
@@ -96,26 +110,68 @@ const App = () => {
     <>
       <div className="form-elements">
         <div>
-          <label className="form-check-label" htmlFor="tonic">Tonic</label>
-          <select id="tonic" className="form-select" onChange={handleTonic}>
+          <label
+            className="form-check-label"
+            htmlFor="tonic"
+          >
+            Tonic
+          </label>
+          <select
+            id="tonic"
+            className="form-select"
+            onChange={handleTonic}
+          >
             <option value="">-- Select tonic --</option>
-            {getChromaticNotes().map(note => <option key={note} value={note}>{getTonicWithEnharmonic(note)}</option>)}
+            {getChromaticNotes().map(note => (
+              <option
+                key={note}
+                value={note}
+              >
+                {getTonicWithEnharmonic(note, false)}
+              </option>
+            ))}
           </select>
         </div>
         <div>
-          <label className="form-check-label" htmlFor="scale">Scale</label>
-          <select id="scale" className="form-select" onChange={handleScale}>
+          <label
+            className="form-check-label"
+            htmlFor="scale"
+          >
+            Scale
+          </label>
+          <select
+            id="scale"
+            className="form-select"
+            onChange={handleScale}
+          >
             <option value="">-- Select scale --</option>
-            {getScales().map(scale => <option key={scale} value={scale}>{scale}</option>)}
+            {getScales().map(scale => (
+              <option
+                key={scale}
+                value={scale}
+              >
+                {scale}
+              </option>
+            ))}
           </select>
         </div>
         <div>
-          <button className="btn btn-primary" onClick={handleShowDiatonic}>Show diatonic chords</button>
+          <button
+            className="btn btn-primary"
+            onClick={handleShowDiatonic}
+          >
+            Show diatonic chords
+          </button>
         </div>
         {diatonicNotes.length ? (
           <div>
             <h3>Diatonic notes</h3>
-            {diatonicNotes.map(note => Note.simplify(note)).join(' ')}
+            {diatonicNotes.map((note, index) => (
+              <React.Fragment key={index}>
+                {index > 0 && ' '}
+                {styleAccidental(Note.simplify(note))}
+              </React.Fragment>
+            ))}
           </div>
         ) : null}
       </div>
@@ -146,7 +202,12 @@ const App = () => {
                     isDiatonic(chord) ? 'cell-diatonic' : ''
                   ].join(' ')}
                 >
-                  {chord.notes.map(n => Note.simplify(n)).join(' ')}
+                  {chord.notes.map((note, index) => (
+                    <React.Fragment key={index}>
+                      {index > 0 && ' '}
+                      {styleAccidental(Note.simplify(note))}
+                    </React.Fragment>
+                  ))}
                 </td>
               ))}
             </tr>

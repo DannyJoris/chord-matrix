@@ -22,6 +22,10 @@ body {
   font-weight: 400;
 }
 
+.accidental {
+  font-size: 0.8rem;
+}
+
 .cell-toggle {
   outline: 2px solid pink;
 }

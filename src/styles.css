@@ -16,6 +16,12 @@ body {
   text-transform: capitalize;
 }
 
+.intervals {
+  font-size: 0.8rem;
+  color: var(--bs-gray-500);
+  font-weight: 400;
+}
+
 .cell-toggle {
   outline: 2px solid pink;
 }

@@ -123,7 +123,12 @@ const App = () => {
         <thead>
           <tr>
             <th key="empty"></th>
-            {chords[0].map((set, i) => (<th key={i}>{set.aliases[0]}</th>))}
+            {chords[0].map((set, i) => (
+              <th key={i}>
+                <div>{set.aliases[0]}</div>
+                <span className="intervals">{set.intervals.join(' ')}</span>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>

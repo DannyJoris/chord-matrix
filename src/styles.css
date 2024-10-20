@@ -7,8 +7,8 @@ body {
 
 .form-elements {
   display: flex;
-  gap: 1rem;
-  align-items: flex-end;
+  justify-content: space-between;
+  align-items: flex-start;
   padding-block: 1rem;
   min-height: 100px;
   margin-top: 3rem;
@@ -48,4 +48,22 @@ table td, th {
 
 table td:not(:first-child) {
   cursor: pointer;
+}
+
+.form-group-left {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  min-height: 100px;
+}
+
+.form-group-right {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  min-height: 100px;
+}
+
+.form-check.form-switch {
+  padding-left: 2.5em;
 }

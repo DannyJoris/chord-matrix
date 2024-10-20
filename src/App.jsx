@@ -64,6 +64,7 @@ const App = () => {
   const [scale, setScale] = useState('');
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [diatonicNotesFlat, setDiatonicNotesFlat] = useState([]);
+  const [preventSleep, setPreventSleep] = useState(false);
 
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
 
@@ -129,69 +130,101 @@ const App = () => {
     }
   };
 
+  const handlePreventSleep = () => {
+    setPreventSleep(!preventSleep);
+    if (!preventSleep) {
+      navigator.wakeLock.request('screen').then(lock => {
+        // Store the wake lock for later release
+        window.wakeLock = lock;
+      }).catch(err => console.error(`${err.name}, ${err.message}`));
+    } else {
+      if (window.wakeLock) {
+        window.wakeLock.release().then(() => {
+          window.wakeLock = null;
+        });
+      }
+    }
+  };
+
   return (
     <>
       <form className="form-elements" onSubmit={handleShowDiatonic}>
-        <div>
-          <label
-            className="form-check-label"
-            htmlFor="tonic"
-          >
-            Tonic
-          </label>
-          <select
-            id="tonic"
-            className="form-select"
-            onChange={handleTonic}
-          >
-            <option value="">-- Select tonic --</option>
-            {getChromaticNotes().map(note => (
-              <option
-                key={note}
-                value={note}
-              >
-                {replaceAccidental(getTonicWithEnharmonic(note))}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label
-            className="form-check-label"
-            htmlFor="scale"
-          >
-            Scale
-          </label>
-          <select
-            id="scale"
-            className="form-select"
-            onChange={handleScale}
-          >
-            <option value="">-- Select scale --</option>
-            {getScales().map(scale => (
-              <option
-                key={scale}
-                value={scale}
-              >
-                {scale}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <button
-            type="submit"
-            className="btn btn-primary"
-          >
-            Show diatonic chords
-          </button>
-        </div>
-        {diatonicNotes.length ? (
+        <div className="form-group-left">
           <div>
-            <h3>Diatonic notes</h3>
-            {diatonicNotes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
+            <label
+              className="form-check-label"
+              htmlFor="tonic"
+            >
+              Tonic
+            </label>
+            <select
+              id="tonic"
+              className="form-select"
+              onChange={handleTonic}
+            >
+              <option value="">-- Select tonic --</option>
+              {getChromaticNotes().map(note => (
+                <option
+                  key={note}
+                  value={note}
+                >
+                  {replaceAccidental(getTonicWithEnharmonic(note))}
+                </option>
+              ))}
+            </select>
           </div>
-        ) : null}
+          <div>
+            <label
+              className="form-check-label"
+              htmlFor="scale"
+            >
+              Scale
+            </label>
+            <select
+              id="scale"
+              className="form-select"
+              onChange={handleScale}
+            >
+              <option value="">-- Select scale --</option>
+              {getScales().map(scale => (
+                <option
+                  key={scale}
+                  value={scale}
+                >
+                  {scale}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <button
+              type="submit"
+              className="btn btn-primary"
+            >
+              Show diatonic chords
+            </button>
+          </div>
+          {diatonicNotes.length ? (
+            <div>
+              <h3>Diatonic notes</h3>
+              {diatonicNotes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
+            </div>
+          ) : null}
+        </div>
+        <div className="form-group-right">
+          <div className="form-check form-switch">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="preventSleepToggle"
+              checked={preventSleep}
+              onChange={handlePreventSleep}
+            />
+            <label className="form-check-label" htmlFor="preventSleepToggle">
+              Prevent Sleep
+            </label>
+          </div>
+        </div>
       </form>
       <table className="table table-bordered">
         <thead>

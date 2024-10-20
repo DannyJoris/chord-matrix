@@ -133,15 +133,32 @@ const App = () => {
   const handlePreventSleep = () => {
     setPreventSleep(!preventSleep);
     if (!preventSleep) {
-      navigator.wakeLock.request('screen').then(lock => {
-        // Store the wake lock for later release
-        window.wakeLock = lock;
-      }).catch(err => console.error(`${err.name}, ${err.message}`));
+      if ('wakeLock' in navigator) {
+        navigator.wakeLock.request('screen')
+          .then(lock => {
+            window.wakeLock = lock;
+            lock.addEventListener('release', () => {
+              console.log('Wake Lock was released');
+              setPreventSleep(false);
+            });
+          })
+          .catch(err => {
+            console.error(`Wake Lock error: ${err.name}, ${err.message}`);
+            setPreventSleep(false);
+          });
+      } else {
+        console.warn('Wake Lock API not supported in this browser.');
+        setPreventSleep(false);
+      }
     } else {
       if (window.wakeLock) {
-        window.wakeLock.release().then(() => {
-          window.wakeLock = null;
-        });
+        window.wakeLock.release()
+          .then(() => {
+            window.wakeLock = null;
+          })
+          .catch(err => {
+            console.error(`Wake Lock release error: ${err.name}, ${err.message}`);
+          });
       }
     }
   };

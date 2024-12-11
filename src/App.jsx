@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Chord, Note, Progression, Scale } from 'tonal';
+import { useWakeLock } from './hooks/useWakeLock';
 
 const getChromaticNotes = () => {
   let note = 'C';
@@ -64,7 +65,7 @@ const App = () => {
   const [scale, setScale] = useState('');
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [diatonicNotesFlat, setDiatonicNotesFlat] = useState([]);
-  const [preventSleep, setPreventSleep] = useState(false);
+  const [preventSleep, handlePreventSleep] = useWakeLock();
 
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
 
@@ -127,39 +128,6 @@ const App = () => {
         roman = `${roman.toLowerCase()}ø`;
       }
       return roman;
-    }
-  };
-
-  const handlePreventSleep = () => {
-    setPreventSleep(!preventSleep);
-    if (!preventSleep) {
-      if ('wakeLock' in navigator) {
-        navigator.wakeLock.request('screen')
-          .then(lock => {
-            window.wakeLock = lock;
-            lock.addEventListener('release', () => {
-              console.log('Wake Lock was released');
-              setPreventSleep(false);
-            });
-          })
-          .catch(err => {
-            console.error(`Wake Lock error: ${err.name}, ${err.message}`);
-            setPreventSleep(false);
-          });
-      } else {
-        console.warn('Wake Lock API not supported in this browser.');
-        setPreventSleep(false);
-      }
-    } else {
-      if (window.wakeLock) {
-        window.wakeLock.release()
-          .then(() => {
-            window.wakeLock = null;
-          })
-          .catch(err => {
-            console.error(`Wake Lock release error: ${err.name}, ${err.message}`);
-          });
-      }
     }
   };
 

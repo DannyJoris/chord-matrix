@@ -128,7 +128,6 @@ const App = () => {
         roman = roman.toLowerCase();
       }
       if (chord.quality === 'Diminished' && chord.notes.length === 3) {
-        console.log('Diminished chord', chord);
         roman = `${roman.toLowerCase()} dim`;
       }
       if (chord.quality === 'Augmented') {
@@ -144,7 +143,6 @@ const App = () => {
         roman = `${roman} maj7`;
       }
       if (chord.aliases.includes('m7b5')) {
-        console.log('m7b5 chord', chord);
         roman = `${roman.toLowerCase()} m7b5`;
       }
       return roman;
@@ -154,29 +152,57 @@ const App = () => {
 
   const getSeventhChordTable = (diatonicNotes) => {
     if (!diatonicNotes.length) return null;
-    
+
     const rows = [];
     // Create 4 rows, each starting from a different position in the scale
-    for (let startIndex = 0; startIndex < 7; startIndex += 2) {
+    for (let rowCount = 0; rowCount < 4; rowCount++) {
       const row = [];
-      // For each row, get 7 notes starting from the current position
-      for (let j = 0; j < 7; j++) {
-        const noteIndex = (startIndex + j) % 7;
+      for (let colCount = 0; colCount < 7; colCount++) {
+        const noteIndex = (rowCount * 2 + colCount) % 7;
         row.push(diatonicNotes[noteIndex]);
       }
       rows.push(row);
     }
 
+    // Create seventh chords from columns
+    const seventhChords = [];
+    const triads = [];
+    for (let col = 0; col < 7; col++) {
+      const chordNotes = rows.map(row => row[col]);
+      // Use Chord.detect to get the chord symbol
+      const chordTypes = Chord.detect(chordNotes);
+      const chord = Chord.get(chordTypes[0]);
+      // Get upper structure triad by using only last 3 notes of the column
+      const triadNotes = chordNotes.slice(-3);
+      const triadTypes = Chord.detect(triadNotes);
+      const triad = Chord.get(triadTypes[0]);
+      seventhChords.push(chord);
+      triads.push(triad);
+    }
+
     return (
-      <table className="table table-bordered mt-4" style={{ width: '500px' }}>
+      <table className="table table-bordered mt-4" style={{ width: '620px' }}>
         <tbody>
+          <tr>
+            <th>Chord</th>
+            {seventhChords.map((chord, i) => (
+              <td key={i}><span className="badge rounded-pill bg-info">{chord.symbol}</span></td>
+            ))}
+          </tr>
           {rows.map((row, i) => (
             <tr key={i}>
+              <th></th>
               {row.map((note, j) => (
                 <td key={j}>{replaceAccidental(note)}</td>
               ))}
             </tr>
           ))}
+          <tr>
+            <th>Upper structure</th>
+            {triads.map((chord, i) => (
+              <td key={i}><span className="badge rounded-pill bg-info">{chord.symbol}</span></td>
+            ))}
+          </tr>
         </tbody>
       </table>
     );
@@ -282,7 +308,7 @@ const App = () => {
                   ].join(' ')}
                 >
                   {isDiatonic(chord) ? (
-                    <span className="badge rounded-pill bg-info">
+                    <span className="badge badge-top-right rounded-pill bg-info">
                       {isDiatonicAddRoman(chord)}
                     </span>
                   ) : null}

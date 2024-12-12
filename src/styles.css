@@ -29,7 +29,7 @@ body {
   outline-offset: -2px;
 }
 
-.badge {
+.badge-top-right {
   position: absolute;
   top: 0;
   right: 0;

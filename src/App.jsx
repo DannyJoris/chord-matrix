@@ -128,30 +128,62 @@ const App = () => {
         roman = roman.toLowerCase();
       }
       if (chord.quality === 'Diminished' && chord.notes.length === 3) {
-        roman = `${roman.toLowerCase()}°`;
+        console.log('Diminished chord', chord);
+        roman = `${roman.toLowerCase()} dim`;
       }
       if (chord.quality === 'Augmented') {
-        roman = `${roman}+`;  // Changed from ° to + for augmented
+        roman = `${roman}+`;
       }
       if (chord.aliases.includes('7')) {
-        roman = `${roman}7`;
+        roman = `${roman} 7`;
       }
       if (chord.aliases.includes('m7')) {
-        roman = `${roman}m7`;
+        roman = `${roman} m7`;
       }
       if (chord.aliases.includes('maj7')) {
-        roman = `${roman}maj7`;
+        roman = `${roman} maj7`;
       }
       if (chord.aliases.includes('m7b5')) {
-        roman = `${roman.toLowerCase()}m7b5`;
+        console.log('m7b5 chord', chord);
+        roman = `${roman.toLowerCase()} m7b5`;
       }
       return roman;
     }
     return null;
   };
 
+  const getSeventhChordTable = (diatonicNotes) => {
+    if (!diatonicNotes.length) return null;
+    
+    const rows = [];
+    // Create 4 rows, each starting from a different position in the scale
+    for (let startIndex = 0; startIndex < 7; startIndex += 2) {
+      const row = [];
+      // For each row, get 7 notes starting from the current position
+      for (let j = 0; j < 7; j++) {
+        const noteIndex = (startIndex + j) % 7;
+        row.push(diatonicNotes[noteIndex]);
+      }
+      rows.push(row);
+    }
+
+    return (
+      <table className="table table-bordered mt-4" style={{ width: '500px' }}>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={i}>
+              {row.map((note, j) => (
+                <td key={j}>{replaceAccidental(note)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
   return (
-    <>
+    <div className="pb-4">
       <form className="form-elements">
         <div className="form-group-left">
           <div>
@@ -222,7 +254,7 @@ const App = () => {
           </div>
         </div>
       </form>
-      <table className="table table-bordered">
+      <table className="table table-bordered mb-4">
         <thead>
           <tr>
             <th key="empty"></th>
@@ -261,7 +293,8 @@ const App = () => {
           ))}
         </tbody>
       </table>
-    </>
+      {getSeventhChordTable(diatonicNotes)}
+    </div>
   )
 };
 

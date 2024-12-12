@@ -1,19 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Chord, Note, Progression, Scale } from 'tonal';
 import { useWakeLock } from './hooks/useWakeLock';
 
 const getChromaticNotes = () => {
-  let note = 'C';
-  let chromaticNotes = [note];
-  // Generate the next 11 notes in the chromatic scale
-  for (let i = 0; i < 11; i++) {
-    note = Note.enharmonic(Note.simplify(Note.transpose(note, '2m')));
-    chromaticNotes.push(note);
-  }
-  return chromaticNotes;
+  return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 };
 
-const replaceAccidental = (note) => note.replace('#', '♯').replace('b', '♭');
+const getSelectedNotes = () => {
+  return ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+};
 
 const getTonicWithEnharmonic = (tonic = '') =>
   `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
@@ -30,13 +25,22 @@ const getScales = () => {
   ];
 };
 
-const mapToAllFlats = (notes = []) => {
-  return notes.map(note => note.includes('#') ? Note.enharmonic(note) : note);
-};
-
-const getChordMatrix = () => {
+const getChordMatrix = (tonic, scale) => {
   const chromaticNotes = getChromaticNotes();
-  return chromaticNotes.map(note => {
+
+  // Get the scale notes to determine sharp/flat preference
+  const scaleNotes = scale && tonic ? Scale.get(`${tonic} ${scale}`).notes : [];
+  const useFlats = scaleNotes.some(note => note.includes('b'));
+
+  // Convert row headers based on scale preference
+  const rowNotes = chromaticNotes.map(note => {
+    if (useFlats && note.includes('#')) {
+      return Note.enharmonic(note);
+    }
+    return note;
+  });
+
+  return rowNotes.map(note => {
     return [
       Chord.getChord('M', note),
       Chord.getChord('m', note),
@@ -57,14 +61,16 @@ const getChordMatrix = () => {
   });
 };
 
+const replaceAccidental = (note) => note.replaceAll('#', '♯').replaceAll('b', '♭');
+
 // App Component.
 const App = () => {
-  const chords = useMemo(() => getChordMatrix(), []);
-  const [activeCells, setActiveCells] = useState([]);
   const [tonic, setTonic] = useState('');
   const [scale, setScale] = useState('');
+  const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
+  const [activeCells, setActiveCells] = useState([]);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
-  const [diatonicNotesFlat, setDiatonicNotesFlat] = useState([]);
+  const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
 
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
@@ -78,34 +84,46 @@ const App = () => {
 
   const handleScale = (e) => setScale(e.target.value);
 
-  const handleShowDiatonic = (e) => {
-    e.preventDefault();
+  useEffect(() => {
     if (tonic && scale) {
       const scaleObj = Scale.get(`${tonic} ${scale}`);
-      const notes = mapToAllFlats(scaleObj.notes);
-      setDiatonicNotesFlat(notes);
-      setDiatonicNotes(scaleObj.notes);
-    }
-    else {
-      setDiatonicNotesFlat([]);
+      const notes = scaleObj.notes;
+      const normalizedNotes = notes.map(note => Note.simplify(note));
+      setNormalizedDiatonicNotes(normalizedNotes);
+      setDiatonicNotes(notes);
+    } else {
+      setNormalizedDiatonicNotes([]);
       setDiatonicNotes([]);
     }
-  };
+  }, [tonic, scale]);
 
-  // Check if every note in the chord is present in the scale
   const isDiatonic = (chord) => {
-    return mapToAllFlats(chord.notes).every(note => diatonicNotesFlat.includes(note));
+    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
+    return normalizedChordNotes.every(note => 
+      normalizedDiatonicNotes.some(dNote => 
+        Note.enharmonic(note) === dNote || note === dNote
+      )
+    );
   };
 
   const isDiatonicAddRoman = (chord) => {
     if (!['M', 'm', 'dim', '7', 'maj7', 'm7', 'm7b5'].includes(chord.aliases[0])) {
-      return;
+      return null;
     }
+
     if (isDiatonic(chord)) {
-      const flatFirst = mapToAllFlats(chord.notes)[0];
-      const position = diatonicNotesFlat.indexOf(flatFirst);
+      const normalizedChordRoot = Note.simplify(chord.notes[0]);
+      const position = normalizedDiatonicNotes.findIndex(note => 
+        Note.enharmonic(normalizedChordRoot) === note || normalizedChordRoot === note
+      );
+
+      if (position === -1) return null;
+      
       const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
       let roman = romans[position];
+      
+      if (!roman) return null;
+
       if (chord.quality === 'Minor') {
         roman = roman.toLowerCase();
       }
@@ -113,7 +131,7 @@ const App = () => {
         roman = `${roman.toLowerCase()}°`;
       }
       if (chord.quality === 'Augmented') {
-        roman = `${roman}°`;
+        roman = `${roman}+`;  // Changed from ° to + for augmented
       }
       if (chord.aliases.includes('7')) {
         roman = `${roman}7`;
@@ -121,19 +139,20 @@ const App = () => {
       if (chord.aliases.includes('m7')) {
         roman = `${roman}m7`;
       }
-      if (chord.aliases.includes('Δ')) {
-        roman = `${roman}Δ`;
+      if (chord.aliases.includes('maj7')) {
+        roman = `${roman}maj7`;
       }
-      if (chord.aliases.includes('ø')) {
-        roman = `${roman.toLowerCase()}ø`;
+      if (chord.aliases.includes('m7b5')) {
+        roman = `${roman.toLowerCase()}m7b5`;
       }
       return roman;
     }
+    return null;
   };
 
   return (
     <>
-      <form className="form-elements" onSubmit={handleShowDiatonic}>
+      <form className="form-elements">
         <div className="form-group-left">
           <div>
             <label
@@ -148,12 +167,12 @@ const App = () => {
               onChange={handleTonic}
             >
               <option value="">-- Select tonic --</option>
-              {getChromaticNotes().map(note => (
+              {getSelectedNotes().map(note => (
                 <option
                   key={note}
                   value={note}
                 >
-                  {replaceAccidental(getTonicWithEnharmonic(note))}
+                  {replaceAccidental(note)}
                 </option>
               ))}
             </select>
@@ -181,18 +200,10 @@ const App = () => {
               ))}
             </select>
           </div>
-          <div>
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
-              Show diatonic chords
-            </button>
-          </div>
           {diatonicNotes.length ? (
             <div>
               <h3>Diatonic notes</h3>
-              {diatonicNotes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
+              {diatonicNotes.map((note) => replaceAccidental(note)).join(' ')}
             </div>
           ) : null}
         </div>
@@ -227,7 +238,7 @@ const App = () => {
           {chords.map((noteSet, i) => (
             <tr key={i}>
               <td>
-                {replaceAccidental(getTonicWithEnharmonic(noteSet[0].tonic))}
+                {replaceAccidental(noteSet[0].tonic)}
               </td>
               {noteSet.map((chord, j) => (
                 <td
@@ -243,7 +254,7 @@ const App = () => {
                       {isDiatonicAddRoman(chord)}
                     </span>
                   ) : null}
-                  {chord.notes.map((note) => replaceAccidental(Note.simplify(note))).join(' ')}
+                  {chord.notes.map((note) => replaceAccidental(note)).join(' ')}
                 </td>
               ))}
             </tr>

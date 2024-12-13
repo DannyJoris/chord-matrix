@@ -176,17 +176,17 @@ const App = () => {
       const triadNotes = chordNotes.slice(-3);
       const triadTypes = Chord.detect(triadNotes);
       const triad = Chord.get(triadTypes[0]);
-      seventhChords.push(chord);
-      triads.push(triad);
+      seventhChords.push(isDiatonicAddRoman(chord));
+      triads.push(triad.aliases[0]);
     }
 
     return (
       <table className="table table-bordered mt-4" style={{ width: '620px' }}>
         <tbody>
           <tr>
-            <th>Chord</th>
-            {seventhChords.map((chord, i) => (
-              <td key={i}><span className="badge rounded-pill bg-info">{chord.symbol}</span></td>
+            <th>7th Chord</th>
+            {seventhChords.map((roman, i) => (
+              <td key={i}><span className="badge rounded-pill bg-info">{roman}</span></td>
             ))}
           </tr>
           {rows.map((row, i) => (
@@ -198,9 +198,9 @@ const App = () => {
             </tr>
           ))}
           <tr>
-            <th>Upper structure</th>
-            {triads.map((chord, i) => (
-              <td key={i}><span className="badge rounded-pill bg-info">{chord.symbol}</span></td>
+            <th>Triad inside 7th</th>
+            {triads.map((triad, i) => (
+              <td key={i}><span className="badge rounded-pill bg-info">{triad}</span></td>
             ))}
           </tr>
         </tbody>

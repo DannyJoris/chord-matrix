@@ -38,6 +38,10 @@ body {
 }
 
 .cell-diatonic {
+  background-color: rgba(var(--bs-info-rgb), 0.2) !important;
+}
+
+.highlight.cell-diatonic {
   background-color: rgba(var(--bs-info-rgb), 0.3) !important;
 }
 

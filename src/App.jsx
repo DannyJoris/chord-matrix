@@ -73,17 +73,19 @@ const App = () => {
     const cells = params.get('cells');
     return cells ? cells.split(',') : [];
   });
+  const [highlight, setHighlight] = useState(params.get('highlight') ? params.get('highlight') === 'true' : false);
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
 
   // Update URL when form values change
-  const updateURL = (newTonic, newScale, newActiveCells) => {
+  const updateURL = (newTonic, newScale, newActiveCells, newHighlight) => {
     const params = new URLSearchParams();
     if (newTonic) params.set('tonic', newTonic);
     if (newScale) params.set('scale', newScale);
     if (newActiveCells.length) params.set('cells', newActiveCells.join(','));
+    params.set('highlight', newHighlight.toString());
     const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
     window.history.pushState({}, '', newURL);
   };
@@ -96,7 +98,7 @@ const App = () => {
       const newActiveCells = activeCells.includes(cellId)
         ? activeCells.filter(item => item !== cellId)
         : [...activeCells, cellId];
-      updateURL(tonic, scale, newActiveCells);
+      updateURL(tonic, scale, newActiveCells, highlight);
       return newActiveCells;
     });
   };
@@ -104,13 +106,19 @@ const App = () => {
   const handleTonic = (e) => {
     const value = e.target.value;
     setTonic(value);
-    updateURL(value, scale, activeCells);
+    updateURL(value, scale, activeCells, highlight);
   };
 
   const handleScale = (e) => {
     const value = e.target.value;
     setScale(value);
-    updateURL(tonic, value, activeCells);
+    updateURL(tonic, value, activeCells, highlight);
+  };
+
+  const handleHighlight = (e) => {
+    const newHighlight = e.target.checked;
+    setHighlight(newHighlight);
+    updateURL(tonic, scale, activeCells, newHighlight);
   };
 
   useEffect(() => {
@@ -325,6 +333,18 @@ const App = () => {
             <input
               className="form-check-input"
               type="checkbox"
+              id="highlight"
+              checked={highlight}
+              onChange={handleHighlight}
+            />
+            <label className="form-check-label" htmlFor="highlight">
+              Highlight chords with 1 non-diatonic note
+            </label>
+          </div>
+          <div className="form-check form-switch">
+            <input
+              className="form-check-input"
+              type="checkbox"
               id="preventSleepToggle"
               checked={preventSleep}
               onChange={handlePreventSleep}
@@ -363,8 +383,9 @@ const App = () => {
                     onClick={() => handleCellToggle(i, j)}
                     className={[
                       cellIsActive(i, j) ? 'cell-toggle' : '',
+                      highlight ? 'highlight' : '',
                       diatonic ? 'cell-diatonic' : '',
-                      nonDiatonicCounter(chord) === 1 ? 'cell-non-diatonic-1' : ''
+                      nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
                     ].join(' ')}
                   >
                     {roman ? (
@@ -400,8 +421,9 @@ const App = () => {
                   key={cell}
                   className={[
                     'active-chords-list-item',
+                    highlight ? 'highlight' : '',
                     diatonic ? 'cell-diatonic' : '',
-                    nonDiatonicCount === 1 ? 'cell-non-diatonic-1' : ''
+                    nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
                   ].join(' ')}
                 >
                   <strong>{info.tonic}{info.type}</strong>

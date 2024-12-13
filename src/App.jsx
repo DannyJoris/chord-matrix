@@ -65,24 +65,53 @@ const replaceAccidental = (note) => note.replaceAll('#', '♯').replaceAll('b', 
 
 // App Component.
 const App = () => {
-  const [tonic, setTonic] = useState('');
-  const [scale, setScale] = useState('');
+  // Get initial values from URL params
+  const params = new URLSearchParams(window.location.search);
+  const [tonic, setTonic] = useState(params.get('tonic') || '');
+  const [scale, setScale] = useState(params.get('scale') || '');
+  const [activeCells, setActiveCells] = useState(() => {
+    const cells = params.get('cells');
+    return cells ? cells.split(',') : [];
+  });
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
-  const [activeCells, setActiveCells] = useState([]);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
 
+  // Update URL when form values change
+  const updateURL = (newTonic, newScale, newActiveCells) => {
+    const params = new URLSearchParams();
+    if (newTonic) params.set('tonic', newTonic);
+    if (newScale) params.set('scale', newScale);
+    if (newActiveCells.length) params.set('cells', newActiveCells.join(','));
+    const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    window.history.pushState({}, '', newURL);
+  };
+
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
 
-  const handleCellToggle = (i, j) => setActiveCells(activeCells =>
-    activeCells.includes(`${i}-${j}`) ?
-      [...activeCells.filter(item => item !== `${i}-${j}`)] : [...activeCells, `${i}-${j}`]
-  );
+  const handleCellToggle = (i, j) => {
+    const cellId = `${i}-${j}`;
+    setActiveCells(activeCells => {
+      const newActiveCells = activeCells.includes(cellId)
+        ? activeCells.filter(item => item !== cellId)
+        : [...activeCells, cellId];
+      updateURL(tonic, scale, newActiveCells);
+      return newActiveCells;
+    });
+  };
 
-  const handleTonic = (e) => setTonic(e.target.value);
+  const handleTonic = (e) => {
+    const value = e.target.value;
+    setTonic(value);
+    updateURL(value, scale, activeCells);
+  };
 
-  const handleScale = (e) => setScale(e.target.value);
+  const handleScale = (e) => {
+    const value = e.target.value;
+    setScale(value);
+    updateURL(tonic, value, activeCells);
+  };
 
   useEffect(() => {
     if (tonic && scale) {
@@ -232,6 +261,7 @@ const App = () => {
               id="tonic"
               className="form-select"
               onChange={handleTonic}
+              value={tonic}
             >
               <option value="">-- Select tonic --</option>
               {getSelectedNotes().map(note => (
@@ -255,6 +285,7 @@ const App = () => {
               id="scale"
               className="form-select"
               onChange={handleScale}
+              value={scale}
             >
               <option value="">-- Select scale --</option>
               {getScales().map(scale => (
@@ -307,24 +338,29 @@ const App = () => {
               <td>
                 {replaceAccidental(noteSet[0].tonic)}
               </td>
-              {noteSet.map((chord, j) => (
-                <td
-                  key={j}
-                  onClick={() => handleCellToggle(i, j)}
-                  className={[
-                    cellIsActive(i, j) ? 'cell-toggle' : '',
-                    isDiatonic(chord) ? 'cell-diatonic' : '',
-                    nonDiatonicCounter(chord) === 1 ? 'cell-non-diatonic-1' : ''
-                  ].join(' ')}
-                >
-                  {isDiatonic(chord) ? (
-                    <span className="badge badge-top-right rounded-pill bg-info">
-                      {isDiatonicAddRoman(chord)}
-                    </span>
-                  ) : null}
-                  {chord.notes.map((note) => replaceAccidental(note)).join(' ')}
-                </td>
-              ))}
+              {noteSet.map((chord, j) => {
+                const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
+                const roman = isDiatonicAddRoman(chord);
+                const diatonic = isDiatonic(chord);
+                return (
+                  <td
+                    key={j}
+                    onClick={() => handleCellToggle(i, j)}
+                    className={[
+                      cellIsActive(i, j) ? 'cell-toggle' : '',
+                      diatonic ? 'cell-diatonic' : '',
+                      nonDiatonicCounter(chord) === 1 ? 'cell-non-diatonic-1' : ''
+                    ].join(' ')}
+                  >
+                    {roman ? (
+                      <span className="badge badge-top-right rounded-pill bg-info">
+                        {roman}
+                      </span>
+                    ) : null}
+                    {chordNotes}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

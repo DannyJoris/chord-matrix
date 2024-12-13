@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Chord, Note, Progression, Scale } from 'tonal';
 import { useWakeLock } from './hooks/useWakeLock';
+import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
 
 const getChromaticNotes = () => {
   return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -78,6 +82,7 @@ const App = () => {
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
+  const [activeId, setActiveId] = useState(null);
 
   // Update URL when form values change
   const updateURL = (newTonic, newScale, newActiveCells, newHighlight) => {
@@ -269,8 +274,135 @@ const App = () => {
     };
   };
 
+  // Create a new SortableItem component
+  const SortableChordItem = ({ cell, info, chord, diatonic, nonDiatonicCount, highlight }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cell });
+    const [width, setWidth] = React.useState(null);
+    const itemRef = React.useRef(null);
+    
+    React.useEffect(() => {
+      if (itemRef.current && !width) {
+        setWidth(itemRef.current.getBoundingClientRect().width);
+      }
+    }, []);
+    
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      // width: width ? `${width}px` : 'auto',
+    };
+
+    return (
+      <li
+        ref={(el) => {
+          setNodeRef(el);
+          itemRef.current = el;
+        }}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={[
+          'active-chords-list-item',
+          isDragging ? 'dragging' : '',
+          highlight ? 'highlight' : '',
+          diatonic ? 'cell-diatonic' : '',
+          nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
+        ].join(' ')}
+      >
+        <strong>{info.tonic}{info.type}</strong>
+        {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
+        <div className="mt-2">{info.notes}</div>
+      </li>
+    );
+  };
+
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragEnd = (event) => {
+    setActiveId(null);
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setActiveCells((items) => {
+        const oldIndex = items.indexOf(active.id);
+        const newIndex = items.indexOf(over.id);
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        updateURL(tonic, scale, newItems, highlight);
+        return newItems;
+      });
+    }
+  };
+
+  const renderChordItem = (cell) => {
+    if (!cell) return null;
+    const [i, j] = cell.split('-').map(Number);
+    const info = getChordInfo(i, j);
+    if (!info) return null;
+
+    const chord = chords[i][j];
+    const diatonic = isDiatonic(chord);
+    const nonDiatonicCount = nonDiatonicCounter(chord);
+
+    return (
+      <li className={[
+        'active-chords-list-item',
+        diatonic ? 'cell-diatonic' : '',
+        nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
+      ].join(' ')}>
+        <strong>{info.tonic}{info.type}</strong>
+        {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
+        <div className="mt-2">{info.notes}</div>
+      </li>
+    );
+  };
+
   return (
-    <div className="pb-4">
+    <div className="p-4">
+      <div className="active-chords-list-container">
+        <DndContext 
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          modifiers={[
+            restrictToHorizontalAxis,
+            restrictToParentElement
+          ]}
+        >
+          <SortableContext 
+            items={activeCells}
+            strategy={horizontalListSortingStrategy}
+          >
+            <DragOverlay>
+              {renderChordItem(activeId)}
+            </DragOverlay>
+            <ul className="active-chords-list">
+              {activeCells.map(cell => {
+                const [i, j] = cell.split('-').map(Number);
+                const info = getChordInfo(i, j);
+                if (!info) return null;
+
+                const chord = chords[i][j];
+                const diatonic = isDiatonic(chord);
+                const nonDiatonicCount = nonDiatonicCounter(chord);
+
+                return (
+                  <SortableChordItem
+                    key={cell}
+                    cell={cell}
+                    info={info}
+                    chord={chord}
+                    diatonic={diatonic}
+                    nonDiatonicCount={nonDiatonicCount}
+                    highlight={highlight}
+                  />
+                );
+              })}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      </div>
       <form className="form-elements">
         <div className="form-group-left">
           <div>
@@ -402,38 +534,7 @@ const App = () => {
         </tbody>
       </table>
       <div className="d-flex gap-4 mt-4">
-        <div className="mt-4">
-          {getSeventhChordTable(diatonicNotes)}
-        </div>
-        <div className="flex-grow-1 mt-4">
-          <ul className="active-chords-list">
-            {activeCells.map(cell => {
-              const [i, j] = cell.split('-').map(Number);
-              const info = getChordInfo(i, j);
-              if (!info) return null;
-
-              const chord = chords[i][j];
-              const diatonic = isDiatonic(chord);
-              const nonDiatonicCount = nonDiatonicCounter(chord);
-
-              return (
-                <li
-                  key={cell}
-                  className={[
-                    'active-chords-list-item',
-                    highlight ? 'highlight' : '',
-                    diatonic ? 'cell-diatonic' : '',
-                    nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
-                  ].join(' ')}
-                >
-                  <strong>{info.tonic}{info.type}</strong>
-                  {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
-                  <div className="mt-2">{info.notes}</div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {getSeventhChordTable(diatonicNotes)}
       </div>
     </div>
   )

@@ -219,7 +219,7 @@ const App = () => {
     }
 
     return (
-      <table className="table table-bordered mt-4" style={{ width: '620px' }}>
+      <table className="table table-bordered" style={{ width: '680px' }}>
         <tbody>
           <tr>
             <th>7th Chord</th>
@@ -244,6 +244,21 @@ const App = () => {
         </tbody>
       </table>
     );
+  };
+
+  const getChordInfo = (i, j) => {
+    if (!chords[i] || !chords[i][j]) return null;
+
+    const chord = chords[i][j];
+    const roman = isDiatonicAddRoman(chord);
+    const notes = chord.notes.map(note => replaceAccidental(note)).join(' ');
+
+    return {
+      tonic: replaceAccidental(chord.tonic),
+      type: chord.aliases[0],
+      roman,
+      notes
+    };
   };
 
   return (
@@ -335,9 +350,9 @@ const App = () => {
         <tbody>
           {chords.map((noteSet, i) => (
             <tr key={i}>
-              <td>
+              <th>
                 {replaceAccidental(noteSet[0].tonic)}
-              </td>
+              </th>
               {noteSet.map((chord, j) => {
                 const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
                 const roman = isDiatonicAddRoman(chord);
@@ -365,7 +380,39 @@ const App = () => {
           ))}
         </tbody>
       </table>
-      {getSeventhChordTable(diatonicNotes)}
+      <div className="d-flex gap-4 mt-4">
+        <div className="mt-4">
+          {getSeventhChordTable(diatonicNotes)}
+        </div>
+        <div className="flex-grow-1 mt-4">
+          <ul className="active-chords-list">
+            {activeCells.map(cell => {
+              const [i, j] = cell.split('-').map(Number);
+              const info = getChordInfo(i, j);
+              if (!info) return null;
+
+              const chord = chords[i][j];
+              const diatonic = isDiatonic(chord);
+              const nonDiatonicCount = nonDiatonicCounter(chord);
+
+              return (
+                <li
+                  key={cell}
+                  className={[
+                    'active-chords-list-item',
+                    diatonic ? 'cell-diatonic' : '',
+                    nonDiatonicCount === 1 ? 'cell-non-diatonic-1' : ''
+                  ].join(' ')}
+                >
+                  <strong>{info.tonic}{info.type}</strong>
+                  {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
+                  <div className="mt-2">{info.notes}</div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
     </div>
   )
 };

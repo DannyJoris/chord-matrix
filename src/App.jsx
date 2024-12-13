@@ -14,9 +14,6 @@ const getSelectedNotes = () => {
   return ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
 };
 
-const getTonicWithEnharmonic = (tonic = '') =>
-  `${tonic}${tonic.length > 1 ? ' / ' + Note.enharmonic(tonic) : ''}`;
-
 const getScales = () => {
   return [
     'ionian',
@@ -277,6 +274,8 @@ const App = () => {
   // Create a new SortableItem component
   const SortableChordItem = ({ cell, info, chord, diatonic, nonDiatonicCount, highlight }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cell });
+    if (!cell) return null;
+    const [i, j] = cell.split('-').map(Number);
     const [width, setWidth] = React.useState(null);
     const itemRef = React.useRef(null);
     
@@ -289,7 +288,6 @@ const App = () => {
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
-      // width: width ? `${width}px` : 'auto',
     };
 
     return (
@@ -309,6 +307,11 @@ const App = () => {
           nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
         ].join(' ')}
       >
+        {cellIsActive(i, j) && (
+          <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+            {activeCells.indexOf(`${i}-${j}`) + 1}
+          </span>
+        )}
         <strong>{info.tonic}{info.type}</strong>
         {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
         <div className="mt-2">{info.notes}</div>
@@ -351,6 +354,9 @@ const App = () => {
         diatonic ? 'cell-diatonic' : '',
         nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
       ].join(' ')}>
+        <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+          {activeCells.indexOf(cell) + 1}
+        </span>
         <strong>{info.tonic}{info.type}</strong>
         {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
         <div className="mt-2">{info.notes}</div>
@@ -359,8 +365,13 @@ const App = () => {
   };
 
   return (
-    <div className="p-4">
+    <main className="main p-4">
       <div className="active-chords-list-container">
+        {activeCells.length ? (
+          <div className="small text-muted">
+            Drag to reorder chords
+          </div>
+        ) : null}
         <DndContext 
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
@@ -487,56 +498,63 @@ const App = () => {
           </div>
         </div>
       </form>
-      <table className="table table-bordered mb-4">
-        <thead>
-          <tr>
-            <th key="empty"></th>
-            {chords[0].map((set, i) => (
-              <th key={i}>
-                <div>{set.aliases[0]}</div>
-                <span className="intervals">{set.intervals.join(' ')}</span>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {chords.map((noteSet, i) => (
-            <tr key={i}>
-              <th>
-                {replaceAccidental(noteSet[0].tonic)}
-              </th>
-              {noteSet.map((chord, j) => {
-                const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
-                const roman = isDiatonicAddRoman(chord);
-                const diatonic = isDiatonic(chord);
-                return (
-                  <td
-                    key={j}
-                    onClick={() => handleCellToggle(i, j)}
-                    className={[
-                      cellIsActive(i, j) ? 'cell-toggle' : '',
-                      highlight ? 'highlight' : '',
-                      diatonic ? 'cell-diatonic' : '',
-                      nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
-                    ].join(' ')}
-                  >
-                    {roman ? (
-                      <span className="badge badge-top-right rounded-pill bg-info">
-                        {roman}
-                      </span>
-                    ) : null}
-                    {chordNotes}
-                  </td>
-                );
-              })}
+      <div className="table-container">
+        <table className="table table-bordered mb-4 overflow-table">
+          <thead>
+            <tr>
+              <th key="empty"></th>
+              {chords[0].map((set, i) => (
+                <th key={i}>
+                  <div>{set.aliases[0]}</div>
+                  <span className="intervals">{set.intervals.join(' ')}</span>
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {chords.map((noteSet, i) => (
+              <tr key={i}>
+                <th>
+                  {replaceAccidental(noteSet[0].tonic)}
+                </th>
+                {noteSet.map((chord, j) => {
+                  const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
+                  const roman = isDiatonicAddRoman(chord);
+                  const diatonic = isDiatonic(chord);
+                  return (
+                    <td
+                      key={j}
+                      onClick={() => handleCellToggle(i, j)}
+                      className={[
+                        cellIsActive(i, j) ? 'cell-toggle' : '',
+                        highlight ? 'highlight' : '',
+                        diatonic ? 'cell-diatonic' : '',
+                        nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
+                      ].join(' ')}
+                    >
+                      {cellIsActive(i, j) && (
+                        <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+                          {activeCells.indexOf(`${i}-${j}`) + 1}
+                        </span>
+                      )}
+                      {roman ? (
+                        <span className="badge badge-top-right rounded-pill bg-info">
+                          {roman}
+                        </span>
+                      ) : null}
+                      {chordNotes}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="d-flex gap-4 mt-4">
         {getSeventhChordTable(diatonicNotes)}
       </div>
-    </div>
+    </main>
   )
 };
 

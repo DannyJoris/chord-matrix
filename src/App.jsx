@@ -99,11 +99,20 @@ const App = () => {
 
   const isDiatonic = (chord) => {
     const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
-    return normalizedChordNotes.every(note => 
-      normalizedDiatonicNotes.some(dNote => 
+    return normalizedChordNotes.every(note =>
+      normalizedDiatonicNotes.some(dNote =>
         Note.enharmonic(note) === dNote || note === dNote
       )
     );
+  };
+
+  const nonDiatonicCounter = (chord) => {
+    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
+    return normalizedChordNotes.filter(note =>
+      !normalizedDiatonicNotes.some(dNote =>
+        Note.enharmonic(note) === dNote || note === dNote
+      )
+    ).length;
   };
 
   const isDiatonicAddRoman = (chord) => {
@@ -304,7 +313,8 @@ const App = () => {
                   onClick={() => handleCellToggle(i, j)}
                   className={[
                     cellIsActive(i, j) ? 'cell-toggle' : '',
-                    isDiatonic(chord) ? 'cell-diatonic' : ''
+                    isDiatonic(chord) ? 'cell-diatonic' : '',
+                    nonDiatonicCounter(chord) === 1 ? 'cell-non-diatonic-1' : ''
                   ].join(' ')}
                 >
                   {isDiatonic(chord) ? (

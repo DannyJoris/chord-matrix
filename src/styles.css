@@ -38,7 +38,11 @@ body {
 }
 
 .cell-diatonic {
-  background-color: rgba(var(--bs-info-rgb), 0.25) !important;
+  background-color: rgba(var(--bs-info-rgb), 0.3) !important;
+}
+
+.cell-non-diatonic-1 {
+  background-color: rgba(var(--bs-info-rgb), 0.08) !important;
 }
 
 table td, th {

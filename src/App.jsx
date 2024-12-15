@@ -5,26 +5,7 @@ import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-
-const getChromaticNotes = () => {
-  return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-};
-
-const getSelectedNotes = () => {
-  return ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-};
-
-const getScales = () => {
-  return [
-    'ionian',
-    'dorian',
-    'phrygian',
-    'lydian',
-    'mixolydian',
-    'aeolian',
-    'locrian',
-  ];
-};
+import { getChromaticNotes, getSelectedNotes, getScales, replaceAccidental } from './utils/notes';
 
 const getChordMatrix = (tonic, scale) => {
   const chromaticNotes = getChromaticNotes();
@@ -61,8 +42,6 @@ const getChordMatrix = (tonic, scale) => {
     ];
   });
 };
-
-const replaceAccidental = (note) => note.replaceAll('#', '♯').replaceAll('b', '♭');
 
 // App Component.
 const App = () => {

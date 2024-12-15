@@ -2,9 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Chord, Note, Progression, Scale } from 'tonal';
 import { useWakeLock } from './hooks/useWakeLock';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
-import { arrayMove, SortableContext, useSortable, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 
 const getChromaticNotes = () => {
   return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -377,41 +377,30 @@ const App = () => {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           modifiers={[
-            restrictToHorizontalAxis,
             restrictToParentElement
           ]}
         >
           <SortableContext 
             items={activeCells}
-            strategy={horizontalListSortingStrategy}
+            strategy={rectSortingStrategy}
           >
-            <DragOverlay>
-              {renderChordItem(activeId)}
-            </DragOverlay>
             <ul className="active-chords-list">
-              {activeCells.map(cell => {
-                const [i, j] = cell.split('-').map(Number);
-                const info = getChordInfo(i, j);
-                if (!info) return null;
-
-                const chord = chords[i][j];
-                const diatonic = isDiatonic(chord);
-                const nonDiatonicCount = nonDiatonicCounter(chord);
-
-                return (
-                  <SortableChordItem
-                    key={cell}
-                    cell={cell}
-                    info={info}
-                    chord={chord}
-                    diatonic={diatonic}
-                    nonDiatonicCount={nonDiatonicCount}
-                    highlight={highlight}
-                  />
-                );
-              })}
+              {activeCells.map(cell => (
+                <SortableChordItem
+                  key={cell}
+                  cell={cell}
+                  info={getChordInfo(...cell.split('-').map(Number))}
+                  chord={chords[cell.split('-')[0]][cell.split('-')[1]]}
+                  diatonic={isDiatonic(chords[cell.split('-')[0]][cell.split('-')[1]])}
+                  nonDiatonicCount={nonDiatonicCounter(chords[cell.split('-')[0]][cell.split('-')[1]])}
+                  highlight={highlight}
+                />
+              ))}
             </ul>
           </SortableContext>
+          <DragOverlay>
+            {activeId ? renderChordItem(activeId) : null}
+          </DragOverlay>
         </DndContext>
       </div>
       <form className="form">

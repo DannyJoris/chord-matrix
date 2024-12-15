@@ -157,15 +157,14 @@ table td:not(:first-child) {
 }
 
 .active-chords-list {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
   list-style-type: none;
   padding: 0.5rem;
   margin: 0;
   width: 100%;
   overflow-x: auto;
-  transform: translateX(-0.5rem);
 }
 
 .active-chords-list-item {
@@ -179,6 +178,7 @@ table td:not(:first-child) {
   user-select: none;
   touch-action: none;
   transform-origin: 0 0;
+  height: 100%;
 }
 
 .active-chords-list-item.dragging {

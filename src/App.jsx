@@ -1,28 +1,28 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Chord, Note, Progression, Scale } from 'tonal';
+import React from 'react';
+import { Chord, Note, Progression } from 'tonal';
 import { useWakeLock } from './hooks/useWakeLock';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { getSelectedNotes, getScales, replaceAccidental } from './utils/notes';
-import { updateURL, getInitialParamsFromURL } from './utils/url';
-import { getChordMatrix } from './utils/chordMatrix';
+import { updateURL } from './utils/url';
+import { useChordContext } from './context/ChordContext';
 
-// App Component.
 const App = () => {
-  // Get initial values from URL params
-  const initialParams = getInitialParamsFromURL();
-  const [tonic, setTonic] = useState(initialParams.tonic);
-  const [scale, setScale] = useState(initialParams.scale);
-  const [activeCells, setActiveCells] = useState(initialParams.cells);
-  const [highlight, setHighlight] = useState(initialParams.highlight);
-  const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
-  const [diatonicNotes, setDiatonicNotes] = useState([]);
-  const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
+  const {
+    tonic, setTonic,
+    scale, setScale,
+    activeCells, setActiveCells,
+    highlight, setHighlight,
+    diatonicNotes,
+    normalizedDiatonicNotes,
+    chords,
+    activeId, setActiveId,
+    removeMode, setRemoveMode
+  } = useChordContext();
+  
   const [preventSleep, handlePreventSleep] = useWakeLock();
-  const [activeId, setActiveId] = useState(null);
-  const [removeMode, setRemoveMode] = useState(false);
 
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
 
@@ -54,25 +54,6 @@ const App = () => {
     setHighlight(newHighlight);
     updateURL(tonic, scale, activeCells, newHighlight);
   };
-
-  useEffect(() => {
-    if (tonic && scale) {
-      const scaleObj = Scale.get(`${tonic} ${scale}`);
-      const notes = scaleObj.notes;
-      const normalizedNotes = notes.map(note => Note.simplify(note));
-      setNormalizedDiatonicNotes(normalizedNotes);
-      setDiatonicNotes(notes);
-    } else {
-      setNormalizedDiatonicNotes([]);
-      setDiatonicNotes([]);
-    }
-  }, [tonic, scale]);
-
-  useEffect(() => {
-    if (!activeCells.length) {
-      setRemoveMode(false);
-    }
-  }, [activeCells]);
 
   const isDiatonic = (chord) => {
     const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
@@ -171,21 +152,21 @@ const App = () => {
         <tbody>
           <tr>
             {seventhChords.map((roman, i) => (
-              <td key={i}><span className="badge rounded-pill bg-info">{roman}</span></td>
+              <td key={`seventh-${i}`}><span className="badge rounded-pill bg-info">{roman}</span></td>
             ))}
             <th>7th Chord</th>
           </tr>
           {rows.map((row, i) => (
-            <tr key={i}>
+            <tr key={`row-${i}`}>
               {row.map((note, j) => (
-                <td key={j}>{replaceAccidental(note)}</td>
+                <td key={`note-${i}-${j}`}>{replaceAccidental(note)}</td>
               ))}
               <th></th>
             </tr>
           ))}
           <tr>
             {triads.map((triad, i) => (
-              <td key={i}><span className="badge rounded-pill bg-info">{triad}</span></td>
+              <td key={`triad-${i}`}><span className="badge rounded-pill bg-info">{triad}</span></td>
             ))}
             <th>Triad inside 7th</th>
           </tr>
@@ -314,7 +295,6 @@ const App = () => {
 
   const handleRemoveChord = (cell) => {
     if (!removeMode) return;
-    console.log('remove chord', cell);
     setActiveCells(cells => {
       const newCells = cells.filter(c => c !== cell);
       updateURL(tonic, scale, newCells, highlight);
@@ -371,7 +351,11 @@ const App = () => {
           </DndContext>
         ) : (
           <ul className="active-chords-list">
-            {activeCells.map(cell => renderChordItem(cell))}
+            {activeCells.map(cell => (
+              <React.Fragment key={cell}>
+                {renderChordItem(cell)}
+              </React.Fragment>
+            ))}
           </ul>
         )}
       </div>
@@ -393,7 +377,7 @@ const App = () => {
               <option value="">-- Select tonic --</option>
               {getSelectedNotes().map(note => (
                 <option
-                  key={note}
+                  key={`note-${note}`}
                   value={note}
                 >
                   {replaceAccidental(note)}
@@ -417,7 +401,7 @@ const App = () => {
               <option value="">-- Select scale --</option>
               {getScales().map(scale => (
                 <option
-                  key={scale}
+                  key={`scale-${scale}`}
                   value={scale}
                 >
                   {scale}
@@ -466,7 +450,7 @@ const App = () => {
               <tr>
                 <th key="empty"></th>
                 {chords[0].map((set, i) => (
-                  <th key={i}>
+                  <th key={`header-${i}`}>
                     <div>{set.aliases[0]}</div>
                     <span className="intervals">{set.intervals.join(' ')}</span>
                   </th>

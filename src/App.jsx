@@ -80,6 +80,7 @@ const App = () => {
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
   const [activeId, setActiveId] = useState(null);
+  const [removeMode, setRemoveMode] = useState(false);
 
   // Update URL when form values change
   const updateURL = (newTonic, newScale, newActiveCells, newHighlight) => {
@@ -135,6 +136,12 @@ const App = () => {
       setDiatonicNotes([]);
     }
   }, [tonic, scale]);
+
+  useEffect(() => {
+    if (!activeCells.length) {
+      setRemoveMode(false);
+    }
+  }, [activeCells]);
 
   const isDiatonic = (chord) => {
     const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
@@ -351,6 +358,7 @@ const App = () => {
     return (
       <li className={[
         'active-chords-list-item',
+        'active-chords-list-item-remove-mode',
         diatonic ? 'cell-diatonic' : '',
         nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
       ].join(' ')}>
@@ -360,48 +368,81 @@ const App = () => {
         <strong>{info.tonic}{info.type}</strong>
         {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
         <div className="mt-2">{info.notes}</div>
+        {removeMode && (
+          <button className="btn btn-sm btn-link text-danger px-0" onClick={() => handleRemoveChord(cell)}>
+            Remove
+          </button>
+        )}
       </li>
     );
+  };
+
+  const toggleRemoveMode = () => {
+    setRemoveMode(prev => !prev);
+  };
+
+  const handleRemoveChord = (cell) => {
+    if (!removeMode) return;
+    console.log('remove chord', cell);
+    setActiveCells(cells => {
+      const newCells = cells.filter(c => c !== cell);
+      updateURL(tonic, scale, newCells, highlight);
+      return newCells;
+    });
   };
 
   return (
     <main className="main p-4">
       <div className="active-chords-list-container">
         {activeCells.length ? (
-          <div className="small text-muted">
-            Drag to reorder chords
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="small text-muted">
+              Drag to reorder
+            </div>
+            <button 
+              className={`btn btn-sm btn-link ${removeMode ? '' : 'text-danger'}`}
+              onClick={toggleRemoveMode}
+            >
+              {removeMode ? 'Done' : `Remove chord${activeCells.length > 1 ? 's' : ''}`}
+            </button>
           </div>
         ) : null}
-        <DndContext 
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          modifiers={[
-            restrictToParentElement
-          ]}
-        >
-          <SortableContext 
-            items={activeCells}
-            strategy={rectSortingStrategy}
+        {!removeMode ? (
+          <DndContext 
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            modifiers={[
+              restrictToParentElement
+            ]}
           >
-            <ul className="active-chords-list">
-              {activeCells.map(cell => (
-                <SortableChordItem
-                  key={cell}
-                  cell={cell}
-                  info={getChordInfo(...cell.split('-').map(Number))}
-                  chord={chords[cell.split('-')[0]][cell.split('-')[1]]}
-                  diatonic={isDiatonic(chords[cell.split('-')[0]][cell.split('-')[1]])}
-                  nonDiatonicCount={nonDiatonicCounter(chords[cell.split('-')[0]][cell.split('-')[1]])}
-                  highlight={highlight}
-                />
-              ))}
-            </ul>
-          </SortableContext>
-          <DragOverlay>
-            {activeId ? renderChordItem(activeId) : null}
-          </DragOverlay>
-        </DndContext>
+            <SortableContext 
+              items={activeCells}
+              strategy={rectSortingStrategy}
+            >
+              <ul className="active-chords-list">
+                {activeCells.map(cell => (
+                  <SortableChordItem
+                    key={cell}
+                    cell={cell}
+                    info={getChordInfo(...cell.split('-').map(Number))}
+                    chord={chords[cell.split('-')[0]][cell.split('-')[1]]}
+                    diatonic={isDiatonic(chords[cell.split('-')[0]][cell.split('-')[1]])}
+                    nonDiatonicCount={nonDiatonicCounter(chords[cell.split('-')[0]][cell.split('-')[1]])}
+                    highlight={highlight}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+            <DragOverlay>
+              {activeId ? renderChordItem(activeId) : null}
+            </DragOverlay>
+          </DndContext>
+        ) : (
+          <ul className="active-chords-list">
+            {activeCells.map(cell => renderChordItem(cell))}
+          </ul>
+        )}
       </div>
       <form className="form">
         <div className="form-group-left">

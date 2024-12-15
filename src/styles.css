@@ -163,7 +163,8 @@ table td:not(:first-child) {
   list-style-type: none;
   padding: 0.5rem;
   margin: 0;
-  width: 100%;
+  width: calc(100% + 1rem);
+  transform: translateX(-0.5rem);
   overflow-x: auto;
 }
 
@@ -197,4 +198,12 @@ table td:not(:first-child) {
   transform-origin: 0 0;
   opacity: 1;
   box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+}
+
+.active-chords-list-item-remove-mode {
+  cursor: default;
+}
+
+.active-chords-list-item-remove-mode:active {
+  cursor: default;
 }

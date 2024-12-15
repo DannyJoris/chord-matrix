@@ -37,6 +37,68 @@ export const ChordProvider = ({ children }) => {
     }
   }, [activeCells]);
 
+  const isDiatonic = (chord) => {
+    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
+    return normalizedChordNotes.every(note =>
+      normalizedDiatonicNotes.some(dNote =>
+        Note.enharmonic(note) === dNote || note === dNote
+      )
+    );
+  };
+
+  const nonDiatonicCounter = (chord) => {
+    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
+    return normalizedChordNotes.filter(note =>
+      !normalizedDiatonicNotes.some(dNote =>
+        Note.enharmonic(note) === dNote || note === dNote
+      )
+    ).length;
+  };
+
+  const isDiatonicAddRoman = (chord) => {
+    if (!['M', 'm', 'dim', '7', 'maj7', 'm7', 'm7b5'].includes(chord.aliases[0])) {
+      return null;
+    }
+
+    if (isDiatonic(chord)) {
+      const normalizedChordRoot = Note.simplify(chord.tonic);
+      const position = normalizedDiatonicNotes.findIndex(note =>
+        Note.enharmonic(normalizedChordRoot) === note || normalizedChordRoot === note
+      );
+
+      if (position === -1) return null;
+      
+      const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+      let roman = romans[position];
+      
+      if (!roman) return null;
+
+      if (chord.quality === 'Minor') {
+        roman = roman.toLowerCase();
+      }
+      if (chord.quality === 'Diminished' && chord.notes.length === 3) {
+        roman = `${roman.toLowerCase()} dim`;
+      }
+      if (chord.quality === 'Augmented') {
+        roman = `${roman}+`;
+      }
+      if (chord.aliases.includes('7')) {
+        roman = `${roman} 7`;
+      }
+      if (chord.aliases.includes('m7')) {
+        roman = `${roman} m7`;
+      }
+      if (chord.aliases.includes('maj7')) {
+        roman = `${roman} maj7`;
+      }
+      if (chord.aliases.includes('m7b5')) {
+        roman = `${roman.toLowerCase()} m7b5`;
+      }
+      return roman;
+    }
+    return null;
+  };
+
   const value = {
     tonic,
     setTonic,
@@ -52,7 +114,10 @@ export const ChordProvider = ({ children }) => {
     activeId,
     setActiveId,
     removeMode,
-    setRemoveMode
+    setRemoveMode,
+    isDiatonic,
+    nonDiatonicCounter,
+    isDiatonicAddRoman
   };
 
   return (

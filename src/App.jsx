@@ -1,26 +1,30 @@
 import React from 'react';
-import { Chord, Note, Progression } from 'tonal';
 import { useWakeLock } from './hooks/useWakeLock';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { getSelectedNotes, getScales, replaceAccidental } from './utils/notes';
+import { replaceAccidental } from './utils/notes';
 import { updateURL } from './utils/url';
 import { useChordContext } from './context/ChordContext';
 import { ChordForm } from './components/ChordForm';
+import { SeventhChordTable } from './components/SeventhChordTable';
 
 const App = () => {
   const {
-    tonic, setTonic,
-    scale, setScale,
-    activeCells, setActiveCells,
-    highlight, setHighlight,
-    diatonicNotes,
-    normalizedDiatonicNotes,
+    tonic,
+    scale,
+    activeCells,
+    setActiveCells,
+    highlight,
     chords,
-    activeId, setActiveId,
-    removeMode, setRemoveMode
+    activeId,
+    setActiveId,
+    removeMode,
+    setRemoveMode,
+    isDiatonic,
+    nonDiatonicCounter,
+    isDiatonicAddRoman
   } = useChordContext();
   
   const [preventSleep, handlePreventSleep] = useWakeLock();
@@ -36,126 +40,6 @@ const App = () => {
       updateURL(tonic, scale, newActiveCells, highlight);
       return newActiveCells;
     });
-  };
-
-  const isDiatonic = (chord) => {
-    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
-    return normalizedChordNotes.every(note =>
-      normalizedDiatonicNotes.some(dNote =>
-        Note.enharmonic(note) === dNote || note === dNote
-      )
-    );
-  };
-
-  const nonDiatonicCounter = (chord) => {
-    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
-    return normalizedChordNotes.filter(note =>
-      !normalizedDiatonicNotes.some(dNote =>
-        Note.enharmonic(note) === dNote || note === dNote
-      )
-    ).length;
-  };
-
-  const isDiatonicAddRoman = (chord) => {
-    if (!['M', 'm', 'dim', '7', 'maj7', 'm7', 'm7b5'].includes(chord.aliases[0])) {
-      return null;
-    }
-
-    if (isDiatonic(chord)) {
-      const normalizedChordRoot = Note.simplify(chord.notes[0]);
-      const position = normalizedDiatonicNotes.findIndex(note => 
-        Note.enharmonic(normalizedChordRoot) === note || normalizedChordRoot === note
-      );
-
-      if (position === -1) return null;
-      
-      const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
-      let roman = romans[position];
-      
-      if (!roman) return null;
-
-      if (chord.quality === 'Minor') {
-        roman = roman.toLowerCase();
-      }
-      if (chord.quality === 'Diminished' && chord.notes.length === 3) {
-        roman = `${roman.toLowerCase()} dim`;
-      }
-      if (chord.quality === 'Augmented') {
-        roman = `${roman}+`;
-      }
-      if (chord.aliases.includes('7')) {
-        roman = `${roman} 7`;
-      }
-      if (chord.aliases.includes('m7')) {
-        roman = `${roman} m7`;
-      }
-      if (chord.aliases.includes('maj7')) {
-        roman = `${roman} maj7`;
-      }
-      if (chord.aliases.includes('m7b5')) {
-        roman = `${roman.toLowerCase()} m7b5`;
-      }
-      return roman;
-    }
-    return null;
-  };
-
-  const getSeventhChordTable = (diatonicNotes) => {
-    if (!diatonicNotes.length) return null;
-
-    const rows = [];
-    // Create 4 rows, each starting from a different position in the scale
-    for (let rowCount = 0; rowCount < 4; rowCount++) {
-      const row = [];
-      for (let colCount = 0; colCount < 7; colCount++) {
-        const noteIndex = (rowCount * 2 + colCount) % 7;
-        row.push(diatonicNotes[noteIndex]);
-      }
-      rows.push(row);
-    }
-
-    // Create seventh chords from columns
-    const seventhChords = [];
-    const triads = [];
-    for (let col = 0; col < 7; col++) {
-      const chordNotes = rows.map(row => row[col]);
-      // Use Chord.detect to get the chord symbol
-      const chordTypes = Chord.detect(chordNotes);
-      const chord = Chord.get(chordTypes[0]);
-      // Get upper structure triad by using only last 3 notes of the column
-      const triadNotes = chordNotes.slice(-3);
-      const triadTypes = Chord.detect(triadNotes);
-      const triad = Chord.get(triadTypes[0]);
-      seventhChords.push(isDiatonicAddRoman(chord));
-      triads.push(triad.aliases[0]);
-    }
-
-    return (
-      <table className="table table-bordered" style={{ width: '680px' }}>
-        <tbody>
-          <tr>
-            {seventhChords.map((roman, i) => (
-              <td key={`seventh-${i}`}><span className="badge rounded-pill bg-info">{roman}</span></td>
-            ))}
-            <th>7th Chord</th>
-          </tr>
-          {rows.map((row, i) => (
-            <tr key={`row-${i}`}>
-              {row.map((note, j) => (
-                <td key={`note-${i}-${j}`}>{replaceAccidental(note)}</td>
-              ))}
-              <th></th>
-            </tr>
-          ))}
-          <tr>
-            {triads.map((triad, i) => (
-              <td key={`triad-${i}`}><span className="badge rounded-pill bg-info">{triad}</span></td>
-            ))}
-            <th>Triad inside 7th</th>
-          </tr>
-        </tbody>
-      </table>
-    );
   };
 
   const getChordInfo = (i, j) => {
@@ -402,11 +286,7 @@ const App = () => {
         </div>
       </div>
       <div className="d-flex gap-4 mt-4">
-        <div className="table-container-wrapper">
-          <div className="table-container">
-            {getSeventhChordTable(diatonicNotes)}
-          </div>
-        </div>
+        <SeventhChordTable />
       </div>
     </main>
   )

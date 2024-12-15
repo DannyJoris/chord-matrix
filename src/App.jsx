@@ -232,24 +232,24 @@ const App = () => {
       <table className="table table-bordered" style={{ width: '680px' }}>
         <tbody>
           <tr>
-            <th>7th Chord</th>
             {seventhChords.map((roman, i) => (
               <td key={i}><span className="badge rounded-pill bg-info">{roman}</span></td>
             ))}
+            <th>7th Chord</th>
           </tr>
           {rows.map((row, i) => (
             <tr key={i}>
-              <th></th>
               {row.map((note, j) => (
                 <td key={j}>{replaceAccidental(note)}</td>
               ))}
+              <th></th>
             </tr>
           ))}
           <tr>
-            <th>Triad inside 7th</th>
             {triads.map((triad, i) => (
               <td key={i}><span className="badge rounded-pill bg-info">{triad}</span></td>
             ))}
+            <th>Triad inside 7th</th>
           </tr>
         </tbody>
       </table>
@@ -414,7 +414,7 @@ const App = () => {
           </SortableContext>
         </DndContext>
       </div>
-      <form className="form-elements">
+      <form className="form">
         <div className="form-group-left">
           <div>
             <label
@@ -466,7 +466,7 @@ const App = () => {
           </div>
           {diatonicNotes.length ? (
             <div>
-              <h3>Diatonic notes</h3>
+              <h3 className="h5">Diatonic notes</h3>
               {diatonicNotes.map((note) => replaceAccidental(note)).join(' ')}
             </div>
           ) : null}
@@ -498,61 +498,67 @@ const App = () => {
           </div>
         </div>
       </form>
-      <div className="table-container">
-        <table className="table table-bordered mb-4 overflow-table">
-          <thead>
-            <tr>
-              <th key="empty"></th>
-              {chords[0].map((set, i) => (
-                <th key={i}>
-                  <div>{set.aliases[0]}</div>
-                  <span className="intervals">{set.intervals.join(' ')}</span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {chords.map((noteSet, i) => (
-              <tr key={i}>
-                <th>
-                  {replaceAccidental(noteSet[0].tonic)}
-                </th>
-                {noteSet.map((chord, j) => {
-                  const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
-                  const roman = isDiatonicAddRoman(chord);
-                  const diatonic = isDiatonic(chord);
-                  return (
-                    <td
-                      key={j}
-                      onClick={() => handleCellToggle(i, j)}
-                      className={[
-                        cellIsActive(i, j) ? 'cell-toggle' : '',
-                        highlight ? 'highlight' : '',
-                        diatonic ? 'cell-diatonic' : '',
-                        nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
-                      ].join(' ')}
-                    >
-                      {cellIsActive(i, j) && (
-                        <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
-                          {activeCells.indexOf(`${i}-${j}`) + 1}
-                        </span>
-                      )}
-                      {roman ? (
-                        <span className="badge badge-top-right rounded-pill bg-info">
-                          {roman}
-                        </span>
-                      ) : null}
-                      {chordNotes}
-                    </td>
-                  );
-                })}
+      <div className="table-container-wrapper">
+        <div className="table-container">
+          <table className="table table-bordered mb-4 overflow-table">
+            <thead>
+              <tr>
+                <th key="empty"></th>
+                {chords[0].map((set, i) => (
+                  <th key={i}>
+                    <div>{set.aliases[0]}</div>
+                    <span className="intervals">{set.intervals.join(' ')}</span>
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {chords.map((noteSet, i) => (
+                <tr key={i}>
+                  <th>
+                    {replaceAccidental(noteSet[0].tonic)}
+                  </th>
+                  {noteSet.map((chord, j) => {
+                    const chordNotes = chord.notes.map((note) => replaceAccidental(note)).join(' ');
+                    const roman = isDiatonicAddRoman(chord);
+                    const diatonic = isDiatonic(chord);
+                    return (
+                      <td
+                        key={j}
+                        onClick={() => handleCellToggle(i, j)}
+                        className={[
+                          cellIsActive(i, j) ? 'cell-toggle' : '',
+                          highlight ? 'highlight' : '',
+                          diatonic ? 'cell-diatonic' : '',
+                          nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
+                        ].join(' ')}
+                      >
+                        {cellIsActive(i, j) && (
+                          <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+                            {activeCells.indexOf(`${i}-${j}`) + 1}
+                          </span>
+                        )}
+                        {roman ? (
+                          <span className="badge badge-top-right rounded-pill bg-info">
+                            {roman}
+                          </span>
+                        ) : null}
+                        {chordNotes}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <div className="d-flex gap-4 mt-4">
-        {getSeventhChordTable(diatonicNotes)}
+        <div className="table-container-wrapper">
+          <div className="table-container">
+            {getSeventhChordTable(diatonicNotes)}
+          </div>
+        </div>
       </div>
     </main>
   )

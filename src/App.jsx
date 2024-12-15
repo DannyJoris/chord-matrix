@@ -8,6 +8,7 @@ import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { getSelectedNotes, getScales, replaceAccidental } from './utils/notes';
 import { updateURL } from './utils/url';
 import { useChordContext } from './context/ChordContext';
+import { ChordForm } from './components/ChordForm';
 
 const App = () => {
   const {
@@ -35,24 +36,6 @@ const App = () => {
       updateURL(tonic, scale, newActiveCells, highlight);
       return newActiveCells;
     });
-  };
-
-  const handleTonic = (e) => {
-    const value = e.target.value;
-    setTonic(value);
-    updateURL(value, scale, activeCells, highlight);
-  };
-
-  const handleScale = (e) => {
-    const value = e.target.value;
-    setScale(value);
-    updateURL(tonic, value, activeCells, highlight);
-  };
-
-  const handleHighlight = (e) => {
-    const newHighlight = e.target.checked;
-    setHighlight(newHighlight);
-    updateURL(tonic, scale, activeCells, newHighlight);
   };
 
   const isDiatonic = (chord) => {
@@ -359,90 +342,10 @@ const App = () => {
           </ul>
         )}
       </div>
-      <form className="form">
-        <div className="form-group-left">
-          <div>
-            <label
-              className="form-check-label"
-              htmlFor="tonic"
-            >
-              Tonic
-            </label>
-            <select
-              id="tonic"
-              className="form-select"
-              onChange={handleTonic}
-              value={tonic}
-            >
-              <option value="">-- Select tonic --</option>
-              {getSelectedNotes().map(note => (
-                <option
-                  key={`note-${note}`}
-                  value={note}
-                >
-                  {replaceAccidental(note)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              className="form-check-label"
-              htmlFor="scale"
-            >
-              Scale
-            </label>
-            <select
-              id="scale"
-              className="form-select"
-              onChange={handleScale}
-              value={scale}
-            >
-              <option value="">-- Select scale --</option>
-              {getScales().map(scale => (
-                <option
-                  key={`scale-${scale}`}
-                  value={scale}
-                >
-                  {scale}
-                </option>
-              ))}
-            </select>
-          </div>
-          {diatonicNotes.length ? (
-            <div>
-              <h3 className="h5">Diatonic notes</h3>
-              {diatonicNotes.map((note) => replaceAccidental(note)).join(' ')}
-            </div>
-          ) : null}
-        </div>
-        <div className="form-group-right">
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="highlight"
-              checked={highlight}
-              onChange={handleHighlight}
-            />
-            <label className="form-check-label" htmlFor="highlight">
-              Highlight chords with 1 non-diatonic note
-            </label>
-          </div>
-          <div className="form-check form-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              id="preventSleepToggle"
-              checked={preventSleep}
-              onChange={handlePreventSleep}
-            />
-            <label className="form-check-label" htmlFor="preventSleepToggle">
-              Prevent Sleep
-            </label>
-          </div>
-        </div>
-      </form>
+      <ChordForm
+        preventSleep={preventSleep}
+        onPreventSleepChange={handlePreventSleep}
+      />
       <div className="table-container-wrapper">
         <div className="table-container">
           <table className="table table-bordered mb-4 overflow-table">

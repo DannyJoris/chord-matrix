@@ -6,6 +6,7 @@ import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@d
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { getChromaticNotes, getSelectedNotes, getScales, replaceAccidental } from './utils/notes';
+import { updateURL, getInitialParamsFromURL } from './utils/url';
 
 const getChordMatrix = (tonic, scale) => {
   const chromaticNotes = getChromaticNotes();
@@ -46,31 +47,17 @@ const getChordMatrix = (tonic, scale) => {
 // App Component.
 const App = () => {
   // Get initial values from URL params
-  const params = new URLSearchParams(window.location.search);
-  const [tonic, setTonic] = useState(params.get('tonic') || '');
-  const [scale, setScale] = useState(params.get('scale') || '');
-  const [activeCells, setActiveCells] = useState(() => {
-    const cells = params.get('cells');
-    return cells ? cells.split(',') : [];
-  });
-  const [highlight, setHighlight] = useState(params.get('highlight') ? params.get('highlight') === 'true' : false);
+  const initialParams = getInitialParamsFromURL();
+  const [tonic, setTonic] = useState(initialParams.tonic);
+  const [scale, setScale] = useState(initialParams.scale);
+  const [activeCells, setActiveCells] = useState(initialParams.cells);
+  const [highlight, setHighlight] = useState(initialParams.highlight);
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [preventSleep, handlePreventSleep] = useWakeLock();
   const [activeId, setActiveId] = useState(null);
   const [removeMode, setRemoveMode] = useState(false);
-
-  // Update URL when form values change
-  const updateURL = (newTonic, newScale, newActiveCells, newHighlight) => {
-    const params = new URLSearchParams();
-    if (newTonic) params.set('tonic', newTonic);
-    if (newScale) params.set('scale', newScale);
-    if (newActiveCells.length) params.set('cells', newActiveCells.join(','));
-    params.set('highlight', newHighlight.toString());
-    const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-    window.history.pushState({}, '', newURL);
-  };
 
   const cellIsActive = (i, j) => activeCells.includes(`${i}-${j}`);
 

@@ -1,7 +1,7 @@
 {
-  "name": "chords-matrix",
+  "name": "chord-matrix",
   "version": "1.0.0",
-  "homepage": "https://DannyJoris.github.io/chords-matrix",
+  "homepage": "https://DannyJoris.github.io/chord-matrix",
   "description": "",
   "type": "module",
   "scripts": {

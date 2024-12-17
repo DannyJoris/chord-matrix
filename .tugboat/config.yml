@@ -4,12 +4,14 @@ services:
     default: true
     commands:
       init:
+        - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        - apt-get install -y nodejs
         - npm ci --include=dev
       update:
         - npm ci --include=dev
       build:
         - npm run build
-        - cp -r dist/* /var/www/html/
+        - cp -r docs/* /var/www/html/
     urls:
       - /
 

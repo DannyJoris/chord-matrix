@@ -7,10 +7,18 @@ services:
         - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
         - apt-get install -y nodejs
         - npm ci --include=dev
-        - mkdir "${DOCROOT}/chord-matrix"
       build:
         - npm run build
-        - ln -snf "${TUGBOAT_ROOT}/docs" "${DOCROOT}/chord-matrix"
+        - rm -rf "${DOCROOT}/chord-matrix"
+        - mkdir -p "${DOCROOT}/chord-matrix"
+        - cp -r docs/* "${DOCROOT}/chord-matrix/"
+        - |
+          cat > "${DOCROOT}/nginx.conf.d/vite.conf" << 'EOF'
+          location /chord-matrix/ {
+            try_files $uri $uri/ /chord-matrix/index.html;
+            index index.html;
+          }
+          EOF
         - chown -R www-data:www-data "${DOCROOT}"
       urls:
         - /chord-matrix/

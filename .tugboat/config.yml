@@ -6,11 +6,10 @@ services:
       init:
         - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
         - apt-get install -y nodejs
-        - mkdir -p "${DOCROOT}/chord-matrix"
-      update:
         - npm ci --include=dev
       build:
         - npm run build
-        - cp -r docs/* "${DOCROOT}/chord-matrix/ "
+        - mkdir -p "${DOCROOT}/chord-matrix"
+        - cp -r docs/* "${DOCROOT}/chord-matrix/"
 
 debug: true

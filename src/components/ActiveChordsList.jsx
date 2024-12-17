@@ -4,13 +4,12 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { useChordContext } from '../context/ChordContext';
 import { updateURL } from '../utils/url';
+import { replaceAccidental } from '../utils/notes';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SortableChordItem } from './SortableChordItem';
 import { ChordItem } from './ChordItem';
 
-export const ActiveChordsList = ({
-  getChordInfo
-}) => {
+export const ActiveChordsList = () => {
   const {
     tonic,
     scale,
@@ -23,17 +22,39 @@ export const ActiveChordsList = ({
     removeMode,
     setRemoveMode,
     isDiatonic,
-    nonDiatonicCounter
+    nonDiatonicCounter,
+    modalInterchangeScale,
+    isModalInterchangeDiatonic,
+    isDiatonicAddRoman
   } = useChordContext();
+
+  const getChordInfo = (chord) => {
+    if (!chord) return null;
+
+    const roman = isDiatonicAddRoman(chord);
+    const notes = chord.notes.map(note => replaceAccidental(note)).join(' ');
+
+    return {
+      tonic: replaceAccidental(chord.tonic),
+      type: chord.aliases[0],
+      roman,
+      notes
+    };
+  };
 
   const getChordData = (cell) => {
     const [i, j] = cell.split('-').map(Number);
+    const chord = chords[i]?.[j];
+    
+    if (!chord) return null;
+
     return {
       cell,
-      info: getChordInfo(i, j),
-      chord: chords[i][j],
-      diatonic: isDiatonic(chords[i][j]),
-      nonDiatonicCount: nonDiatonicCounter(chords[i][j])
+      info: getChordInfo(chord),
+      chord,
+      diatonic: isDiatonic(chord),
+      modalInterchangeDiatonic: isModalInterchangeDiatonic(chord),
+      nonDiatonicCount: nonDiatonicCounter(chord)
     };
   };
 
@@ -50,7 +71,7 @@ export const ActiveChordsList = ({
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        updateURL(tonic, scale, newItems, highlight);
+        updateURL(tonic, scale, newItems, highlight, modalInterchangeScale);
         return newItems;
       });
     }

@@ -9,12 +9,15 @@ export const ChordProvider = ({ children }) => {
   const initialParams = getInitialParamsFromURL();
   const [tonic, setTonic] = useState(initialParams.tonic);
   const [scale, setScale] = useState(initialParams.scale);
+  const [modalInterchangeScale, setModalInterchangeScale] = useState(initialParams.modalInterchangeScale);
   const [activeCells, setActiveCells] = useState(initialParams.cells);
   const [highlight, setHighlight] = useState(initialParams.highlight);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [removeMode, setRemoveMode] = useState(false);
+  const [modalInterchangeDiatonicNotes, setModalInterchangeDiatonicNotes] = useState([]);
+  const [normalizedModalInterchangeDiatonicNotes, setNormalizedModalInterchangeDiatonicNotes] = useState([]);
 
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
 
@@ -32,6 +35,19 @@ export const ChordProvider = ({ children }) => {
   }, [tonic, scale]);
 
   useEffect(() => {
+    if (tonic && modalInterchangeScale) {
+      const scaleObj = Scale.get(`${tonic} ${modalInterchangeScale}`);
+      const notes = scaleObj.notes;
+      const normalizedNotes = notes.map(note => Note.simplify(note));
+      setNormalizedModalInterchangeDiatonicNotes(normalizedNotes);
+      setModalInterchangeDiatonicNotes(notes);
+    } else {
+      setNormalizedModalInterchangeDiatonicNotes([]);
+      setModalInterchangeDiatonicNotes([]);
+    }
+  }, [tonic, modalInterchangeScale]);
+
+  useEffect(() => {
     if (!activeCells.length) {
       setRemoveMode(false);
     }
@@ -46,23 +62,25 @@ export const ChordProvider = ({ children }) => {
     );
   };
 
-  const nonDiatonicCounter = (chord) => {
+  const isModalInterchangeDiatonic = (chord) => {
     const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
-    return normalizedChordNotes.filter(note =>
-      !normalizedDiatonicNotes.some(dNote =>
+    return normalizedChordNotes.every(note =>
+      normalizedModalInterchangeDiatonicNotes.some(dNote =>
         Note.enharmonic(note) === dNote || note === dNote
       )
-    ).length;
+    );
   };
 
-  const isDiatonicAddRoman = (chord) => {
+  const isDiatonicAddRoman = (chord, isModalInterchange = false) => {
     if (!['M', 'm', 'dim', '7', 'maj7', 'm7', 'm7b5'].includes(chord.aliases[0])) {
       return null;
     }
 
-    if (isDiatonic(chord)) {
+    const normalizedScaleNotes = isModalInterchange ? normalizedModalInterchangeDiatonicNotes : normalizedDiatonicNotes;
+
+    if (isModalInterchange ? isModalInterchangeDiatonic(chord) : isDiatonic(chord)) {
       const normalizedChordRoot = Note.simplify(chord.tonic);
-      const position = normalizedDiatonicNotes.findIndex(note =>
+      const position = normalizedScaleNotes.findIndex(note =>
         Note.enharmonic(normalizedChordRoot) === note || normalizedChordRoot === note
       );
 
@@ -99,11 +117,22 @@ export const ChordProvider = ({ children }) => {
     return null;
   };
 
+  const nonDiatonicCounter = (chord) => {
+    const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
+    return normalizedChordNotes.filter(note =>
+      !normalizedDiatonicNotes.some(dNote =>
+        Note.enharmonic(note) === dNote || note === dNote
+      )
+    ).length;
+  };
+
   const value = {
     tonic,
     setTonic,
     scale,
     setScale,
+    modalInterchangeScale,
+    setModalInterchangeScale,
     activeCells,
     setActiveCells,
     highlight,
@@ -117,7 +146,10 @@ export const ChordProvider = ({ children }) => {
     setRemoveMode,
     isDiatonic,
     nonDiatonicCounter,
-    isDiatonicAddRoman
+    isDiatonicAddRoman,
+    modalInterchangeDiatonicNotes,
+    normalizedModalInterchangeDiatonicNotes,
+    isModalInterchangeDiatonic
   };
 
   return (

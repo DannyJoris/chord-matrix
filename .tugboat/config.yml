@@ -1,0 +1,16 @@
+services:
+  apache:
+    image: tugboatqa/httpd:2.4
+    default: true
+    commands:
+      init:
+        - npm ci --include=dev
+      update:
+        - npm ci --include=dev
+      build:
+        - npm run build
+        - cp -r dist/* /var/www/html/
+    urls:
+      - /
+
+debug: true

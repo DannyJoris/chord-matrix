@@ -1,11 +1,11 @@
-export const updateURL = (newTonic, newScale, newActiveCells, newHighlight) => {
+export const updateURL = (tonic, scale, cells, highlight, modalInterchangeScale) => {
   const params = new URLSearchParams();
-  if (newTonic) params.set('tonic', newTonic);
-  if (newScale) params.set('scale', newScale);
-  if (newActiveCells.length) params.set('cells', newActiveCells.join(','));
-  params.set('highlight', newHighlight.toString());
-  const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
-  window.history.pushState({}, '', newURL);
+  if (tonic) params.set('tonic', tonic);
+  if (scale) params.set('scale', scale);
+  if (modalInterchangeScale) params.set('modalInterchangeScale', modalInterchangeScale);
+  if (cells.length) params.set('cells', cells.join(','));
+  if (highlight) params.set('highlight', highlight);
+  window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
 };
 
 export const getInitialParamsFromURL = () => {
@@ -13,7 +13,8 @@ export const getInitialParamsFromURL = () => {
   return {
     tonic: params.get('tonic') || '',
     scale: params.get('scale') || '',
-    cells: params.get('cells') ? params.get('cells').split(',') : [],
-    highlight: params.get('highlight') ? params.get('highlight') === 'true' : false
+    modalInterchangeScale: params.get('modalInterchangeScale') || '',
+    cells: params.get('cells')?.split(',').filter(Boolean) || [],
+    highlight: params.get('highlight') === 'true'
   };
 };

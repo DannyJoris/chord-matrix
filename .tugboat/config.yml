@@ -11,6 +11,7 @@ services:
       build:
         - npm run build
         - ln -snf "${TUGBOAT_ROOT}/docs" "${DOCROOT}/chord-matrix"
+        - chown -R www-data:www-data "${DOCROOT}"
       urls:
         - /chord-matrix/
 

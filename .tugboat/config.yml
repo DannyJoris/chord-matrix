@@ -1,16 +1,15 @@
 services:
   apache:
-    image: tugboatqa/httpd:2.4
+    image: tugboatqa/httpd
     default: true
     commands:
       init:
-        - npm ci --include=dev
-      update:
+        - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        - apt-get install -y nodejs
         - npm ci --include=dev
       build:
         - npm run build
-        - cp -r dist/* /var/www/html/
-    urls:
-      - /
+        - mkdir -p "${DOCROOT}/chord-matrix"
+        - cp -r docs/* "${DOCROOT}/chord-matrix/"
 
 debug: true

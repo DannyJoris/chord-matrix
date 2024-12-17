@@ -1,18 +1,14 @@
 services:
-  apache:
-    image: tugboatqa/httpd:2.4
+  nginx:
+    image: tugboatqa/nginx
     default: true
     commands:
       init:
         - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
         - apt-get install -y nodejs
         - npm ci --include=dev
-      update:
-        - npm ci --include=dev
       build:
         - npm run build
-        - cp -r docs/* /var/www/html/
-    urls:
-      - /
+        - ln -snf "${TUGBOAT_ROOT}/docs" "${DOCROOT}"
 
 debug: true

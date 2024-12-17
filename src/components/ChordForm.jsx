@@ -45,7 +45,7 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
   return (
     <form className="form">
       <div className="form-group-left">
-        <div>
+        <div className="form-group-tonic">
           <label className="form-check-label" htmlFor="tonic">
             Tonic
           </label>
@@ -85,12 +85,14 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
             </div>
             {diatonicNotes.length ? (
               <div>
-                <h3 className="h5">Diatonic notes</h3>
-                {diatonicNotes.map((note, index) => (
-                  <span key={`diatonic-${note}-${index}`}>
-                    {replaceAccidental(note)}{index < diatonicNotes.length - 1 ? ' ' : ''}
-                  </span>
-                ))}
+                <div>Diatonic notes</div>
+                <div className="diatonic-notes">
+                  {diatonicNotes.map((note, index) => (
+                    <span key={`diatonic-${note}-${index}`}>
+                      {replaceAccidental(note)}{index < diatonicNotes.length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
@@ -114,13 +116,15 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
               </select>
             </div>
             {modalInterchangeDiatonicNotes.length ? (
-              <div className="modal-interchange-diatonic-notes">
-                <h3 className="h5">Diatonic notes</h3>
-                {modalInterchangeDiatonicNotes.map((note, index) => (
-                  <span key={`diatonic-${note}-${index}`}>
-                    {replaceAccidental(note)}{index < modalInterchangeDiatonicNotes.length - 1 ? ' ' : ''}
-                  </span>
-                ))}
+              <div>
+                <div>Diatonic notes</div>
+                <div className="diatonic-notes">
+                  {modalInterchangeDiatonicNotes.map((note, index) => (
+                    <span key={`diatonic-${note}-${index}`}>
+                      {replaceAccidental(note)}{index < modalInterchangeDiatonicNotes.length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>

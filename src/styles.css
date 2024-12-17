@@ -18,7 +18,7 @@ body {
   padding-block-end: 1rem;
 }
 
-@media (min-width: 1140px) {
+@media (min-width: 1470px) {
   .form {
     flex-direction: row;
     align-items: flex-end;
@@ -33,7 +33,7 @@ body {
   align-items: flex-start;
 }
 
-@media (min-width: 560px) {
+@media (min-width: 610px) {
   .form-group-left,
   .form-group-right {
     flex-direction: row;
@@ -48,18 +48,63 @@ body {
   }
 }
 
+.form-group-tonic {
+  padding: 10px;
+}
+
 .form-group-scales {
   display: flex;
-  /* flex-direction: column; */
+  flex-direction: column;
   gap: 1rem;
   align-items: flex-start;
 }
 
+@media (min-width: 960px) {
+  .form-group-scales {
+    flex-direction: row;
+  }
+}
+
 .form-group-scales-scale {
   display: flex;
-  /* flex-direction: column; */
+  flex-direction: column;
   gap: 1rem;
   align-items: flex-start;
+
+  /* border: 2px solid #ccf3fb; */
+  background-color: #ccf3fb;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+@media (min-width: 420px) {
+  .form-group-scales-scale {
+    flex-direction: row;
+  }
+}
+
+.form-group-scales-modal-interchange {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+
+  /* border: 2px solid #ffecef; */
+  background-color: #ffecef;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+@media (min-width: 420px) {
+  .form-group-scales-modal-interchange {
+    flex-direction: row;
+  }
+}
+
+.diatonic-notes {
+  margin-top: 3px;
+  padding-right: 10px;
+  font-size: 1.25rem;
 }
 
 .form-select option {

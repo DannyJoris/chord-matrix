@@ -47,7 +47,6 @@ export const ModalInterchangeTable = () => {
             <tr>
               {diatonicTriads.map((chord, i) => {
                 const roman = isDiatonicAddRoman(chord);
-                console.log(roman);
                 return (
                   <td key={`diatonic-${i}`} className="cell-diatonic">
                     {roman && (

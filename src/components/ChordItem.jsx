@@ -2,7 +2,7 @@ import React from 'react';
 import { useChordContext } from '../context/ChordContext';
 import { updateURL } from '../utils/url';
 
-export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight }) => {
+export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight, modalInterchangeScale, modalInterchangeDiatonic }) => {
   const { 
     tonic, 
     scale, 
@@ -17,7 +17,7 @@ export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight })
     if (!removeMode) return;
     setActiveCells(cells => {
       const newCells = cells.filter(c => c !== cell);
-      updateURL(tonic, scale, newCells, highlight);
+      updateURL(tonic, scale, newCells, highlight, modalInterchangeScale);
       return newCells;
     });
   };
@@ -27,6 +27,7 @@ export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight })
       'active-chords-list-item',
       'active-chords-list-item-remove-mode',
       diatonic ? 'cell-diatonic' : '',
+      modalInterchangeDiatonic ? 'cell-modal-interchange' : '',
       nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
     ].join(' ')}>
       <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>

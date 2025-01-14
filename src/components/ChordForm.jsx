@@ -9,34 +9,43 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
     setTonic,
     scale,
     setScale,
+    modalInterchangeScale,
+    setModalInterchangeScale,
     activeCells,
     highlight,
     setHighlight,
-    diatonicNotes
+    diatonicNotes,
+    modalInterchangeDiatonicNotes
   } = useChordContext();
 
   const handleTonic = (e) => {
     const value = e.target.value;
     setTonic(value);
-    updateURL(value, scale, activeCells, highlight);
+    updateURL(value, scale, activeCells, highlight, modalInterchangeScale);
   };
 
   const handleScale = (e) => {
     const value = e.target.value;
     setScale(value);
-    updateURL(tonic, value, activeCells, highlight);
+    updateURL(tonic, value, activeCells, highlight, modalInterchangeScale);
   };
 
   const handleHighlight = (e) => {
     const newHighlight = e.target.checked;
     setHighlight(newHighlight);
-    updateURL(tonic, scale, activeCells, newHighlight);
+    updateURL(tonic, scale, activeCells, newHighlight, modalInterchangeScale);
+  };
+
+  const handleModalInterchange = (e) => {
+    const value = e.target.value;
+    setModalInterchangeScale(value);
+    updateURL(tonic, scale, activeCells, highlight, value);
   };
 
   return (
     <form className="form">
       <div className="form-group-left">
-        <div>
+        <div className="form-group-tonic">
           <label className="form-check-label" htmlFor="tonic">
             Tonic
           </label>
@@ -54,34 +63,72 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
             ))}
           </select>
         </div>
-        <div>
-          <label className="form-check-label" htmlFor="scale">
-            Scale
-          </label>
-          <select
-            id="scale"
-            className="form-select"
-            onChange={handleScale}
-            value={scale}
-          >
-            <option value="">-- Select scale --</option>
-            {getScales().map(scale => (
-              <option key={`scale-${scale}`} value={scale}>
-                {scale}
-              </option>
-            ))}
-          </select>
-        </div>
-        {diatonicNotes.length ? (
-          <div>
-            <h3 className="h5">Diatonic notes</h3>
-            {diatonicNotes.map((note, index) => (
-              <span key={`diatonic-${note}-${index}`}>
-                {replaceAccidental(note)}{index < diatonicNotes.length - 1 ? ' ' : ''}
-              </span>
-            ))}
+        <div className="form-group-scales">
+          <div className="form-group-scales-scale">
+            <div>
+              <label className="form-check-label" htmlFor="scale">
+                Scale
+              </label>
+              <select
+                id="scale"
+                className="form-select"
+                onChange={handleScale}
+                value={scale}
+              >
+                <option value="">-- Select scale --</option>
+                {getScales().map(scale => (
+                  <option key={`scale-${scale}`} value={scale}>
+                    {scale}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {diatonicNotes.length ? (
+              <div>
+                <div>Diatonic notes</div>
+                <div className="diatonic-notes">
+                  {diatonicNotes.map((note, index) => (
+                    <span key={`diatonic-${note}-${index}`}>
+                      {replaceAccidental(note)}{index < diatonicNotes.length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
-        ) : null}
+          <div className="form-group-scales-modal-interchange d-flex gap-2">
+            <div>
+              <label className="form-check-label" htmlFor="modal-interchange">
+                Modal interchange
+              </label>
+              <select
+                id="modal-interchange"
+                className="form-select"
+                onChange={handleModalInterchange}
+                value={modalInterchangeScale}
+              >
+                <option value="">-- Select scale --</option>
+                {getScales().map(scale => (
+                  <option key={`scale-${scale}`} value={scale}>
+                    {scale}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {modalInterchangeDiatonicNotes.length ? (
+              <div>
+                <div>Diatonic notes</div>
+                <div className="diatonic-notes">
+                  {modalInterchangeDiatonicNotes.map((note, index) => (
+                    <span key={`diatonic-${note}-${index}`}>
+                      {replaceAccidental(note)}{index < modalInterchangeDiatonicNotes.length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
       <div className="form-group-right">
         <div className="form-check form-switch">

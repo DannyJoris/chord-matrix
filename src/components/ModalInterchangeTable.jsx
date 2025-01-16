@@ -2,13 +2,17 @@ import React from 'react';
 import { Chord, Scale } from 'tonal';
 import { replaceAccidental, getScales } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
+import { getChordId } from '../utils/chordIdentifier';
 
 export const ModalInterchangeTable = () => {
   const { 
     tonic,
     scale,
     modalInterchangeScale,
-    isDiatonicAddRoman
+    isDiatonicAddRoman,
+    activeChords,
+    chordIsActive,
+    handleChordToggle
   } = useChordContext();
 
   if (!tonic) return null;
@@ -24,6 +28,8 @@ export const ModalInterchangeTable = () => {
       
       const chordTypes = Chord.detect(notes);
       const chord = Chord.get(chordTypes[0]);
+      chord.notes = notes;
+      chord.tonic = note;
       
       return chord;
     });
@@ -45,14 +51,23 @@ export const ModalInterchangeTable = () => {
                   <th style={{ textTransform: 'capitalize' }}>{currentScale}</th>
                   {triads.map((chord, i) => {
                     const roman = isDiatonicAddRoman(chord, isModalScale);
+                    const chordId = getChordId(chord);
+                    const isActive = chordIsActive(chordId);
                     return (
                       <td 
                         key={`${currentScale}-${i}`}
+                        onClick={() => handleChordToggle(chordId)}
                         className={[
+                          isActive ? 'cell-toggle' : '',
                           isMainScale ? 'cell-diatonic' : '',
                           isModalScale ? 'cell-modal-interchange' : ''
                         ].join(' ')}
                       >
+                        {isActive && (
+                          <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+                            {activeChords.indexOf(chordId) + 1}
+                          </span>
+                        )}
                         {roman && (
                           <span className="badge badge-top-right rounded-pill bg-info">
                             {roman}

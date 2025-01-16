@@ -2,12 +2,20 @@ import React from 'react';
 import { useChordContext } from '../context/ChordContext';
 import { updateURL } from '../utils/url';
 
-export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight, modalInterchangeScale, modalInterchangeDiatonic }) => {
+export const ChordItem = ({
+  cell,
+  info,
+  diatonic,
+  nonDiatonicCount,
+  highlight,
+  modalInterchangeScale,
+  modalInterchangeDiatonic
+}) => {
   const { 
     tonic, 
     scale, 
-    activeCells, 
-    setActiveCells, 
+    activeChords, 
+    setActiveChords, 
     removeMode 
   } = useChordContext();
 
@@ -15,10 +23,10 @@ export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight, m
 
   const handleRemoveChord = () => {
     if (!removeMode) return;
-    setActiveCells(cells => {
-      const newCells = cells.filter(c => c !== cell);
-      updateURL(tonic, scale, newCells, highlight, modalInterchangeScale);
-      return newCells;
+    setActiveChords(chordIds => {
+      const newchordIds = chordIds.filter(c => c !== cell);
+      updateURL(tonic, scale, newchordIds, highlight, modalInterchangeScale);
+      return newchordIds;
     });
   };
 
@@ -31,7 +39,7 @@ export const ChordItem = ({ cell, info, diatonic, nonDiatonicCount, highlight, m
       nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
     ].join(' ')}>
       <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
-        {activeCells.indexOf(cell) + 1}
+        {activeChords.indexOf(cell) + 1}
       </span>
       <strong>{info.tonic}{info.type}</strong>
       {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}

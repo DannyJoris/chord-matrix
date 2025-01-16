@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { Scale, Note } from 'tonal';
-import { getInitialParamsFromURL } from '../utils/url';
+import { getInitialParamsFromURL, updateURL } from '../utils/url';
 import { getChordMatrix } from '../utils/chordMatrix';
+import { getChordId } from '../utils/chordIdentifier';
 
 const ChordContext = createContext(null);
 
@@ -10,7 +11,7 @@ export const ChordProvider = ({ children }) => {
   const [tonic, setTonic] = useState(initialParams.tonic);
   const [scale, setScale] = useState(initialParams.scale);
   const [modalInterchangeScale, setModalInterchangeScale] = useState(initialParams.modalInterchangeScale);
-  const [activeCells, setActiveCells] = useState(initialParams.cells);
+  const [activeChords, setActiveChords] = useState(initialParams.chordIds);
   const [highlight, setHighlight] = useState(initialParams.highlight);
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
@@ -48,10 +49,10 @@ export const ChordProvider = ({ children }) => {
   }, [tonic, modalInterchangeScale]);
 
   useEffect(() => {
-    if (!activeCells.length) {
+    if (!activeChords.length) {
       setRemoveMode(false);
     }
-  }, [activeCells]);
+  }, [activeChords]);
 
   const isDiatonic = (chord) => {
     const normalizedChordNotes = chord.notes.map(note => Note.simplify(note));
@@ -126,6 +127,19 @@ export const ChordProvider = ({ children }) => {
     ).length;
   };
 
+  const chordIsActive = (chordId) => activeChords.includes(chordId);
+
+  const handleChordToggle = (chordId) => {
+    console.log(chordId);
+    setActiveChords(activeChords => {
+      const newactiveChords = activeChords.includes(chordId)
+        ? activeChords.filter(item => item !== chordId)
+        : [...activeChords, chordId];
+      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale);
+      return newactiveChords;
+    });
+  };
+
   const value = {
     tonic,
     setTonic,
@@ -133,8 +147,8 @@ export const ChordProvider = ({ children }) => {
     setScale,
     modalInterchangeScale,
     setModalInterchangeScale,
-    activeCells,
-    setActiveCells,
+    activeChords,
+    setActiveChords,
     highlight,
     setHighlight,
     diatonicNotes,
@@ -149,7 +163,9 @@ export const ChordProvider = ({ children }) => {
     isDiatonicAddRoman,
     modalInterchangeDiatonicNotes,
     normalizedModalInterchangeDiatonicNotes,
-    isModalInterchangeDiatonic
+    isModalInterchangeDiatonic,
+    chordIsActive,
+    handleChordToggle
   };
 
   return (

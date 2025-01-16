@@ -8,13 +8,14 @@ import { replaceAccidental } from '../utils/notes';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SortableChordItem } from './SortableChordItem';
 import { ChordItem } from './ChordItem';
+import { getChordId } from '../utils/chordIdentifier';
 
 export const ActiveChordsList = () => {
   const {
     tonic,
     scale,
-    activeCells,
-    setActiveCells,
+    activeChords,
+    setActiveChords,
     highlight,
     chords,
     activeId,
@@ -42,20 +43,23 @@ export const ActiveChordsList = () => {
     };
   };
 
-  const getChordData = (cell) => {
-    const [i, j] = cell.split('-').map(Number);
-    const chord = chords[i]?.[j];
-    
-    if (!chord) return null;
-
-    return {
-      cell,
-      info: getChordInfo(chord),
-      chord,
-      diatonic: isDiatonic(chord),
-      modalInterchangeDiatonic: isModalInterchangeDiatonic(chord),
-      nonDiatonicCount: nonDiatonicCounter(chord)
-    };
+  const getChordData = (chordId) => {
+    // Find the chord in the matrix by matching its identifier
+    for (const row of chords) {
+      for (const chord of row) {
+        if (getChordId(chord) === chordId) {
+          return {
+            cell: chordId,
+            info: getChordInfo(chord),
+            chord,
+            diatonic: isDiatonic(chord),
+            modalInterchangeDiatonic: isModalInterchangeDiatonic(chord),
+            nonDiatonicCount: nonDiatonicCounter(chord)
+          };
+        }
+      }
+    }
+    return null;
   };
 
   const handleDragStart = (event) => {
@@ -67,7 +71,7 @@ export const ActiveChordsList = () => {
     const { active, over } = event;
     
     if (active.id !== over.id) {
-      setActiveCells((items) => {
+      setActiveChords((items) => {
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
@@ -83,7 +87,7 @@ export const ActiveChordsList = () => {
 
   return (
     <div className="active-chords-list-container mb-2">
-      {activeCells.length ? (
+      {activeChords.length ? (
         <div className="d-flex justify-content-between align-items-center">
           <div className="small text-muted">
             Drag to reorder
@@ -92,7 +96,7 @@ export const ActiveChordsList = () => {
             className={`btn btn-sm btn-link ${removeMode ? '' : 'text-danger'}`}
             onClick={toggleRemoveMode}
           >
-            {removeMode ? 'Done' : `Remove chord${activeCells.length > 1 ? 's' : ''}`}
+            {removeMode ? 'Done' : `Remove chord${activeChords.length > 1 ? 's' : ''}`}
           </button>
         </div>
       ) : null}
@@ -104,20 +108,17 @@ export const ActiveChordsList = () => {
           modifiers={[restrictToParentElement]}
         >
           <SortableContext 
-            items={activeCells}
+            items={activeChords}
             strategy={rectSortingStrategy}
           >
             <ul className="active-chords-list">
-              {activeCells.map(cell => {
-                const [i, j] = cell.split('-').map(Number);
-                return (
-                  <SortableChordItem
-                    key={cell}
-                    {...getChordData(cell)}
-                    highlight={highlight}
-                  />
-                );
-              })}
+              {activeChords.map(chordId => (
+                <SortableChordItem
+                  key={chordId}
+                  {...getChordData(chordId)}
+                  highlight={highlight}
+                />
+              ))}
             </ul>
           </SortableContext>
           <DragOverlay>
@@ -131,10 +132,10 @@ export const ActiveChordsList = () => {
         </DndContext>
       ) : (
         <ul className="active-chords-list">
-          {activeCells.map(cell => (
-            <React.Fragment key={cell}>
+          {activeChords.map(chordId => (
+            <React.Fragment key={chordId}>
               <ChordItem 
-                {...getChordData(cell)}
+                {...getChordData(chordId)}
                 highlight={highlight}
               />
             </React.Fragment>

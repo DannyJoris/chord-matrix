@@ -5,10 +5,9 @@ import { useChordContext } from '../context/ChordContext';
 
 export const SortableChordItem = ({ cell, info, chord, diatonic, modalInterchangeDiatonic, nonDiatonicCount, highlight }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cell });
-  const { activeCells } = useChordContext();
+  const { activeChords } = useChordContext();
   
   if (!cell) return null;
-  const [i, j] = cell.split('-').map(Number);
   const itemRef = React.useRef(null);
   
   const style = {
@@ -31,11 +30,9 @@ export const SortableChordItem = ({ cell, info, chord, diatonic, modalInterchang
         nonDiatonicCount === 1 && highlight ? 'cell-non-diatonic-1' : ''
       ].join(' ')}
     >
-      {activeCells.includes(`${i}-${j}`) && (
-        <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
-          {activeCells.indexOf(`${i}-${j}`) + 1}
-        </span>
-      )}
+      <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
+        {activeChords.indexOf(cell) + 1}
+      </span>
       <strong>{info.tonic}{info.type}</strong>
       {info.roman && <span className="badge badge-top-right rounded-pill bg-info ms-2">{info.roman}</span>}
       <div className="mt-2">{info.notes}</div>

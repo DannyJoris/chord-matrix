@@ -1,16 +1,19 @@
 import React from 'react';
 import { useChordContext } from '../context/ChordContext';
 import { replaceAccidental } from '../utils/notes';
+import { getChordId } from '../utils/chordIdentifier';
 
-export const ChordMatrix = ({ handleCellToggle, cellIsActive }) => {
+export const ChordMatrix = () => {
   const {
     chords,
     highlight,
-    activeCells,
+    activeChords,
     isDiatonic,
     isDiatonicAddRoman,
     nonDiatonicCounter,
-    isModalInterchangeDiatonic
+    isModalInterchangeDiatonic,
+    chordIsActive,
+    handleChordToggle
   } = useChordContext();
 
   return (
@@ -39,22 +42,23 @@ export const ChordMatrix = ({ handleCellToggle, cellIsActive }) => {
                   const roman = isDiatonicAddRoman(chord);
                   const diatonic = isDiatonic(chord);
                   const modalInterchange = isModalInterchangeDiatonic(chord);
+                  const chordId = getChordId(chord);
                   // const modalInterchangeRoman = isDiatonicAddRoman(chord, true);
                   return (
                     <td
                       key={j}
-                      onClick={() => handleCellToggle(i, j)}
+                      onClick={() => handleChordToggle(chordId)}
                       className={[
-                        cellIsActive(i, j) ? 'cell-toggle' : '',
+                        chordIsActive(chordId) ? 'cell-toggle' : '',
                         highlight ? 'highlight' : '',
                         diatonic ? 'cell-diatonic' : '',
                         modalInterchange ? 'cell-modal-interchange' : '',
                         nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
                       ].join(' ')}
                     >
-                      {cellIsActive(i, j) && (
+                      {chordIsActive(chordId) && (
                         <span className="badge badge-top-left rounded-pill" style={{ backgroundColor: 'hotpink' }}>
-                          {activeCells.indexOf(`${i}-${j}`) + 1}
+                          {activeChords.indexOf(chordId) + 1}
                         </span>
                       )}
                       {/* {modalInterchangeRoman ? (

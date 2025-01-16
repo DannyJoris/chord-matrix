@@ -126,16 +126,20 @@ body {
   position: absolute;
   top: 0;
   right: 0;
-  transform: translate(6px, -6px);
+  /* transform: translate(6px, -6px); */
+  transform: translate(0, 0);
   z-index: 2;
+  border-radius: 0 0 0 var(--bs-badge-border-radius) !important;
 }
 
 .badge-top-left {
   position: absolute;
   top: 0;
   left: 0;
-  transform: translate(-6px, -6px);
+  /* transform: translate(-6px, -6px); */
+  transform: translate(0px, 0px);
   z-index: 1;
+  border-radius: 0 0 var(--bs-badge-border-radius) 0 !important;
 }
 
 .bg-modal-interchange {
@@ -217,8 +221,12 @@ table td, th {
   padding: 1.5rem;
 }
 
+.table-modal-interchange {
+  width: 730px;
+}
+
 .table>:not(caption)>*>* {
-  padding: 0.9rem;
+  padding: 1rem;
 }
 
 table td:not(:first-child) {
@@ -283,8 +291,4 @@ table td:not(:first-child) {
 
 .active-chords-list-item-remove-mode:active {
   cursor: default;
-}
-
-.table-modal-interchange {
-  width: 730px;
 }

@@ -12,7 +12,9 @@ export const ModalInterchangeTable = () => {
     isDiatonicAddRoman,
     activeChords,
     chordIsActive,
-    handleChordToggle
+    handleChordToggle,
+    nonDiatonicCounter,
+    highlight
   } = useChordContext();
 
   if (!tonic) return null;
@@ -48,19 +50,20 @@ export const ModalInterchangeTable = () => {
               
               return (
                 <tr key={currentScale}>
-                  <th style={{ textTransform: 'capitalize' }}>{currentScale}</th>
+                  <th style={{ textTransform: 'capitalize', verticalAlign: 'middle' }}>{currentScale}</th>
                   {triads.map((chord, i) => {
                     const roman = isDiatonicAddRoman(chord, isModalScale);
                     const chordId = getChordId(chord);
                     const isActive = chordIsActive(chordId);
                     return (
-                      <td 
+                      <td
                         key={`${currentScale}-${i}`}
                         onClick={() => handleChordToggle(chordId)}
                         className={[
                           isActive ? 'cell-toggle' : '',
                           isMainScale ? 'cell-diatonic' : '',
-                          isModalScale ? 'cell-modal-interchange' : ''
+                          isModalScale ? 'cell-modal-interchange' : '',
+                          nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
                         ].join(' ')}
                       >
                         {isActive && (

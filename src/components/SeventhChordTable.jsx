@@ -38,7 +38,7 @@ export const SeventhChordTable = () => {
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
-        <table className="table table-bordered" style={{ width: '720px' }}>
+        <table className="table table-bordered" style={{ width: '740px' }}>
           <tbody>
             <tr>
               {seventhChords.map((roman, i) => (

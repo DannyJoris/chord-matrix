@@ -22,7 +22,7 @@ const App = () => {
         <ModalInterchangeTable />
       </div>
       <div className="d-flex gap-4 mt-4">
-        <ModalInterchangeTable showSevenths={true} width="940px" />
+        <ModalInterchangeTable showSevenths={true} width="960px" />
       </div>
       <div className="d-flex gap-4 mt-4">
         <SeventhChordTable />

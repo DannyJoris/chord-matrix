@@ -62,6 +62,12 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
     });
   };
 
+  const isChordInScale = (chord, scaleName) => {
+    if (!scaleName) return false;
+    const scaleChords = getScaleChords(scaleName);
+    return scaleChords.some(scaleChord => getChordId(scaleChord) === getChordId(chord));
+  };
+
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
@@ -75,7 +81,18 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
               
               return (
                 <tr key={currentScale}>
-                  <th style={{ textTransform: 'capitalize', verticalAlign: 'middle' }}>{currentScale}</th>
+                  <th className="cell-with-left-border">
+                    {isMainScale || isModalScale ? (
+                      <div
+                        className={[
+                          'cell-left-border',
+                          isMainScale ? 'cell-diatonic' : '',
+                          isModalScale ? 'cell-modal-interchange' : '',
+                        ].join(' ')}
+                      ></div>
+                      ) : null}
+                    {currentScale}
+                  </th>
                   {triads.map((chord, i) => {
                     const roman = isDiatonicAddRoman(chord, isModalScale);
                     const chordId = getChordId(chord);
@@ -86,8 +103,8 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
                         onClick={() => handleChordToggle(chordId)}
                         className={[
                           isActive ? 'cell-toggle' : '',
-                          isMainScale ? 'cell-diatonic' : '',
-                          isModalScale ? 'cell-modal-interchange' : '',
+                          isMainScale ? 'cell-diatonic' : isChordInScale(chord, scale) ? 'cell-diatonic' : '',
+                          isModalScale ? 'cell-modal-interchange' : isChordInScale(chord, modalInterchangeScale) ? 'cell-modal-interchange' : '',
                           nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : '',
                           isDuplicateOnHighlightedScale(chord, currentScale) ? 'cell-duplicate' : ''
                         ].join(' ')}

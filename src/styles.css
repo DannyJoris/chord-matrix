@@ -71,7 +71,6 @@ body {
   gap: 1rem;
   align-items: flex-start;
 
-  /* border: 2px solid #ccf3fb; */
   background-color: #ccf3fb;
   border-radius: 5px;
   padding: 10px;
@@ -89,7 +88,6 @@ body {
   gap: 1rem;
   align-items: flex-start;
 
-  /* border: 2px solid #ffecef; */
   background-color: #ffecef;
   border-radius: 5px;
   padding: 10px;
@@ -127,8 +125,21 @@ body {
 }
 
 .cell-duplicate.cell-toggle .badge-top-left {
-  /* opacity: 0.4; */
   background-color: rgba(255, 105, 180, 0.3) !important;
+}
+
+.cell-with-left-border {
+  position: relative;
+  text-transform: capitalize;
+  vertical-align: middle;
+}
+
+.cell-left-border {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 100%;
 }
 
 .badge-top-right {

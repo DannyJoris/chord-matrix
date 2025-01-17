@@ -130,7 +130,6 @@ export const ChordProvider = ({ children }) => {
   const chordIsActive = (chordId) => activeChords.includes(chordId);
 
   const handleChordToggle = (chordId) => {
-    console.log(chordId);
     setActiveChords(activeChords => {
       const newactiveChords = activeChords.includes(chordId)
         ? activeChords.filter(item => item !== chordId)

@@ -122,6 +122,15 @@ body {
   outline-offset: -2px;
 }
 
+.cell-duplicate.cell-toggle {
+  outline: 2px solid rgba(255, 105, 180, 0.3);
+}
+
+.cell-duplicate.cell-toggle .badge-top-left {
+  /* opacity: 0.4; */
+  background-color: rgba(255, 105, 180, 0.3) !important;
+}
+
 .badge-top-right {
   position: absolute;
   top: 0;

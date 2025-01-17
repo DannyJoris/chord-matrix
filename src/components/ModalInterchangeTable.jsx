@@ -37,6 +37,30 @@ export const ModalInterchangeTable = () => {
     });
   };
 
+  const isDuplicateOnHighlightedScale = (chord, currentScale) => {
+    const chordId = getChordId(chord);
+    const isMainScale = currentScale === scale;
+    const isModalScale = currentScale === modalInterchangeScale;
+    
+    // Main scale chords are never duplicates
+    if (isMainScale) return false;
+    
+    // For modal scale chords, only check if they exist in main scale
+    if (isModalScale) {
+      const mainScaleTriads = getScaleTriads(scale);
+      return mainScaleTriads.some(mainChord => getChordId(mainChord) === chordId);
+    }
+    
+    // For other scales, check if chord exists in either main or modal scale
+    return getScales().some(otherScale => {
+      if (otherScale === currentScale) return false;
+      if (otherScale !== scale && otherScale !== modalInterchangeScale) return false;
+      
+      const otherTriads = getScaleTriads(otherScale);
+      return otherTriads.some(otherChord => getChordId(otherChord) === chordId);
+    });
+  };
+
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
@@ -63,7 +87,8 @@ export const ModalInterchangeTable = () => {
                           isActive ? 'cell-toggle' : '',
                           isMainScale ? 'cell-diatonic' : '',
                           isModalScale ? 'cell-modal-interchange' : '',
-                          nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : ''
+                          nonDiatonicCounter(chord) === 1 && highlight ? 'cell-non-diatonic-1' : '',
+                          isDuplicateOnHighlightedScale(chord, currentScale) ? 'cell-duplicate' : ''
                         ].join(' ')}
                       >
                         {isActive && (

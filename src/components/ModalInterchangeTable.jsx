@@ -4,7 +4,7 @@ import { replaceAccidental, getScales } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { getChordId } from '../utils/chordIdentifier';
 
-export const ModalInterchangeTable = () => {
+export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
   const { 
     tonic,
     scale,
@@ -19,14 +19,15 @@ export const ModalInterchangeTable = () => {
 
   if (!tonic) return null;
 
-  const getScaleTriads = (scaleName) => {    
+  const getScaleChords = (scaleName) => {    
     const scaleObj = Scale.get(`${tonic} ${scaleName}`);
     const scaleNotes = scaleObj.notes;
     
     return scaleNotes.map((note, index) => {
       const third = scaleNotes[(index + 2) % 7];
       const fifth = scaleNotes[(index + 4) % 7];
-      const notes = [note, third, fifth];
+      const seventh = showSevenths ? scaleNotes[(index + 6) % 7] : null;
+      const notes = seventh ? [note, third, fifth, seventh] : [note, third, fifth];
       
       const chordTypes = Chord.detect(notes);
       const chord = Chord.get(chordTypes[0]);
@@ -47,7 +48,7 @@ export const ModalInterchangeTable = () => {
     
     // For modal scale chords, only check if they exist in main scale
     if (isModalScale) {
-      const mainScaleTriads = getScaleTriads(scale);
+      const mainScaleTriads = getScaleChords(scale);
       return mainScaleTriads.some(mainChord => getChordId(mainChord) === chordId);
     }
     
@@ -56,7 +57,7 @@ export const ModalInterchangeTable = () => {
       if (otherScale === currentScale) return false;
       if (otherScale !== scale && otherScale !== modalInterchangeScale) return false;
       
-      const otherTriads = getScaleTriads(otherScale);
+      const otherTriads = getScaleChords(otherScale);
       return otherTriads.some(otherChord => getChordId(otherChord) === chordId);
     });
   };
@@ -64,11 +65,11 @@ export const ModalInterchangeTable = () => {
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
-        <h3 className="h5 mb-3">Scale Comparison</h3>
-        <table className="table table-bordered table-modal-interchange">
+        <h3 className="h5 mb-3">Scale Comparison {showSevenths ? '(Seventh Chords)' : '(Triads)'}</h3>
+        <table className="table table-bordered table-modal-interchange" style={ width ? { width } : {}}>
           <tbody>
             {getScales().map(currentScale => {
-              const triads = getScaleTriads(currentScale);
+              const triads = getScaleChords(currentScale);
               const isMainScale = currentScale === scale;
               const isModalScale = currentScale === modalInterchangeScale;
               

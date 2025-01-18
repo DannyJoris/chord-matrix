@@ -192,6 +192,24 @@ body {
   background-color: #b2edf9 !important;
 }
 
+.cell-triad1 {
+  background-color: #ccf3fb !important;
+}
+
+.cell-triad2 {
+  background-color: #ffecef !important;
+}
+
+.cell-triad1.cell-triad2 {
+  background: repeating-linear-gradient(
+    -45deg,
+    #ffecef 0px,
+    #ffecef 10px,
+    #ccf3fb 10px,
+    #ccf3fb 20px
+  ) !important;
+}
+
 .table-container-wrapper {
   position: relative;
   width: calc(100% + 40px);
@@ -242,7 +260,7 @@ table td, th {
 }
 
 .table-modal-interchange {
-  width: 790px;
+  width: 820px;
 }
 
 .table>:not(caption)>*>* {

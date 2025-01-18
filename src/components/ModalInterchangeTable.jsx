@@ -71,7 +71,7 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
-        <h3 className="h5 mb-3">Scale Comparison {showSevenths ? '(Seventh Chords)' : '(Triads)'}</h3>
+        <h3 className="h5 mb-3">Modal Interchange {showSevenths ? '(Seventh Chords)' : '(Triads)'}</h3>
         <table className="table table-bordered table-modal-interchange" style={ width ? { width } : {}}>
           <tbody>
             {getScales().map(currentScale => {

@@ -8,14 +8,17 @@ export const getSelectedNotes = () => {
 
 export const getScales = () => {
   return [
-    'ionian',
-    'dorian',
-    'phrygian',
-    'lydian',
-    'mixolydian',
-    'aeolian',
-    'locrian',
+    ...getDiatonicScales(),
+    ...getHepatonicScales(),
   ];
+};
+
+export const getDiatonicScales = () => {
+  return ['ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'];
+};
+
+export const getHepatonicScales = () => {
+  return ['melodic minor', 'harmonic minor', 'harmonic major'];
 };
 
 export const replaceAccidental = (note) => note.replaceAll('#', '♯').replaceAll('b', '♭');

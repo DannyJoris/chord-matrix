@@ -1,5 +1,5 @@
 import React from 'react';
-import { getSelectedNotes, getScales, replaceAccidental } from '../utils/notes';
+import { getSelectedNotes, getDiatonicScales, getHepatonicScales, replaceAccidental } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { updateURL } from '../utils/url';
 
@@ -76,7 +76,13 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
                 value={scale}
               >
                 <option value="">-- Select scale --</option>
-                {getScales().map(scale => (
+                {getDiatonicScales().map(scale => (
+                  <option key={`scale-${scale}`} value={scale}>
+                    {scale}
+                  </option>
+                ))}
+                <option disabled>----------------</option>
+                {getHepatonicScales().map(scale => (
                   <option key={`scale-${scale}`} value={scale}>
                     {scale}
                   </option>
@@ -108,7 +114,13 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
                 value={modalInterchangeScale}
               >
                 <option value="">-- Select scale --</option>
-                {getScales().map(scale => (
+                {getDiatonicScales().map(scale => (
+                  <option key={`scale-${scale}`} value={scale}>
+                    {scale}
+                  </option>
+                ))}
+                <option disabled>----------------</option>
+                {getHepatonicScales().map(scale => (
                   <option key={`scale-${scale}`} value={scale}>
                     {scale}
                   </option>

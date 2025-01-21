@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chord, Scale } from 'tonal';
-import { replaceAccidental, getScales } from '../utils/notes';
+import { replaceAccidental, getScales, getHepatonicScales } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { getChordId } from '../utils/chordIdentifier';
 
@@ -80,7 +80,7 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
               const isModalScale = currentScale === modalInterchangeScale;
               
               return (
-                <tr key={currentScale}>
+                <tr key={currentScale} className={currentScale === getHepatonicScales()[0] ? 'row-section-first-item' : ''}>
                   <th className="cell-with-left-border">
                     {isMainScale || isModalScale ? (
                       <div

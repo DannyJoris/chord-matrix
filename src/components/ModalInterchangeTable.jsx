@@ -4,18 +4,22 @@ import { replaceAccidental, getScales, getHepatonicScales } from '../utils/notes
 import { useChordContext } from '../context/ChordContext';
 import { getChordId } from '../utils/chordIdentifier';
 import { addRoman } from '../utils/roman';
+import { updateURL } from '../utils/url';
 
 export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
   const { 
     tonic,
     scale,
     modalInterchangeScale,
-    isDiatonicAddRoman,
     activeChords,
     chordIsActive,
     handleChordToggle,
     nonDiatonicCounter,
-    highlight
+    highlight,
+    triadRomans,
+    setTriadRomans,
+    seventhRomans,
+    setSeventhRomans
   } = useChordContext();
 
   if (!tonic) return null;
@@ -69,10 +73,49 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
     return scaleChords.some(scaleChord => getChordId(scaleChord) === getChordId(chord));
   };
 
+  const handleShowAllRomans = (e) => {
+    const newValue = e.target.checked;
+    if (showSevenths) {
+      setSeventhRomans(newValue);
+      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, newValue);
+    } else {
+      setTriadRomans(newValue);
+      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, newValue, seventhRomans);
+    }
+  };
+
+  const showRomanLabel = (chord, i, currentScale = null) => {
+    console.log(scale, modalInterchangeScale);
+    const scaleSelected = scale || modalInterchangeScale;
+    const isScale = scaleSelected && [scale, modalInterchangeScale, 'ionian'].includes(currentScale);
+    if ((showSevenths && seventhRomans) || (!showSevenths && triadRomans) || isScale) {
+      return addRoman(chord, i, tonic);
+    }
+    return null;
+  };
+
+  const showAllRomansId = `show-all-romans-${showSevenths ? 'seventh' : 'triad'}`;
+
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
-        <h3 className="h5 mb-3">Modal Interchange {showSevenths ? '(Seventh Chords)' : '(Triads)'}</h3>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h3 className="h5 mb-0">Modal Interchange {showSevenths ? '(Seventh Chords)' : '(Triads)'}</h3>
+        </div>
+
+        <div className="form-check form-switch mb-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id={showAllRomansId}
+            checked={showSevenths ? seventhRomans : triadRomans}
+            onChange={handleShowAllRomans}
+          />
+          <label className="form-check-label" htmlFor={showAllRomansId}>
+            Show all roman labels
+          </label>
+        </div>
+
         <table className="table table-bordered table-modal-interchange" style={ width ? { width } : {}}>
           <tbody>
             {getScales().map(currentScale => {
@@ -97,7 +140,7 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
                   {triads.map((chord, i) => {
                     const chordId = getChordId(chord);
                     const isActive = chordIsActive(chordId);
-                    const roman = addRoman(chord, i, tonic);
+                    const roman = showRomanLabel(chord, i, currentScale);
                     return (
                       <td
                         key={`${currentScale}-${i}`}

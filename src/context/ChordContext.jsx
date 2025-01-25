@@ -18,6 +18,9 @@ export const ChordProvider = ({ children }) => {
   const [removeMode, setRemoveMode] = useState(false);
   const [modalInterchangeDiatonicNotes, setModalInterchangeDiatonicNotes] = useState([]);
   const [normalizedModalInterchangeDiatonicNotes, setNormalizedModalInterchangeDiatonicNotes] = useState([]);
+  const [showAllRomans, setShowAllRomans] = useState(initialParams.showAllRomans);
+  const [triadRomans, setTriadRomans] = useState(initialParams.triadRomans);
+  const [seventhRomans, setSeventhRomans] = useState(initialParams.seventhRomans);
 
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
 
@@ -133,7 +136,7 @@ export const ChordProvider = ({ children }) => {
       const newactiveChords = activeChords.includes(chordId)
         ? activeChords.filter(item => item !== chordId)
         : [...activeChords, chordId];
-      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale);
+      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale, triadRomans, seventhRomans);
       return newactiveChords;
     });
   };
@@ -163,7 +166,13 @@ export const ChordProvider = ({ children }) => {
     normalizedModalInterchangeDiatonicNotes,
     isModalInterchangeDiatonic,
     chordIsActive,
-    handleChordToggle
+    handleChordToggle,
+    showAllRomans,
+    setShowAllRomans,
+    triadRomans,
+    setTriadRomans,
+    seventhRomans,
+    setSeventhRomans
   };
 
   return (

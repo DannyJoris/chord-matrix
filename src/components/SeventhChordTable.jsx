@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Chord } from 'tonal';
 import { replaceAccidental } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
-
+import { addRoman } from '../utils/roman';
 export const SeventhChordTable = () => {
-  const { diatonicNotes, isDiatonicAddRoman } = useChordContext();
+  const { diatonicNotes, tonic } = useChordContext();
   const [triad1, setTriad1] = useState([]);
   const [triad2, setTriad2] = useState([]);
 
@@ -29,11 +29,13 @@ export const SeventhChordTable = () => {
     // Use Chord.detect to get the chord symbol
     const chordTypes = Chord.detect(chordNotes);
     const chord = Chord.get(chordTypes[0]);
+
+    const roman = addRoman(chord, col, tonic);
     // Get upper structure triad by using only last 3 notes of the column
     const triadNotes = chordNotes.slice(-3);
     const triadTypes = Chord.detect(triadNotes);
     const triad = Chord.get(triadTypes[0]);
-    seventhChords.push(isDiatonicAddRoman(chord));
+    seventhChords.push(roman);
     triads.push(triad.aliases[0]);
   }
 
@@ -73,7 +75,7 @@ export const SeventhChordTable = () => {
       <div className="table-container">
         <h3 className="h5 mb-3">Seventh Chords and Upper Structure Triads</h3>
         <p className="small text-muted">Hover table to see</p>
-        <table className="table table-bordered" style={{ width: '790px' }}>
+        <table className="table table-bordered" style={{ width: '830px' }}>
           <tbody>
             <tr>
               {seventhChords.map((roman, i) => (

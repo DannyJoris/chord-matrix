@@ -15,31 +15,33 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
     highlight,
     setHighlight,
     diatonicNotes,
-    modalInterchangeDiatonicNotes
+    modalInterchangeDiatonicNotes,
+    triadRomans,
+    seventhRomans
   } = useChordContext();
 
   const handleTonic = (e) => {
     const value = e.target.value;
     setTonic(value);
-    updateURL(value, scale, activeChords, highlight, modalInterchangeScale);
+    updateURL(value, scale, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
   };
 
   const handleScale = (e) => {
     const value = e.target.value;
     setScale(value);
-    updateURL(tonic, value, activeChords, highlight, modalInterchangeScale);
+    updateURL(tonic, value, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
   };
 
   const handleHighlight = (e) => {
     const newHighlight = e.target.checked;
     setHighlight(newHighlight);
-    updateURL(tonic, scale, activeChords, newHighlight, modalInterchangeScale);
+    updateURL(tonic, scale, activeChords, newHighlight, modalInterchangeScale, triadRomans, seventhRomans, title);
   };
 
   const handleModalInterchange = (e) => {
     const value = e.target.value;
     setModalInterchangeScale(value);
-    updateURL(tonic, scale, activeChords, highlight, value);
+    updateURL(tonic, scale, activeChords, highlight, value, triadRomans, seventhRomans, title);
   };
 
   return (

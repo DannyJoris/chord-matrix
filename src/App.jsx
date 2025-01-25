@@ -5,13 +5,14 @@ import { SeventhChordTable } from './components/SeventhChordTable';
 import { ActiveChordsList } from './components/ActiveChordsList';
 import { ChordMatrix } from './components/ChordMatrix';
 import { ModalInterchangeTable } from './components/ModalInterchangeTable';
-import { ScaleType } from 'tonal';
+import { Title } from './components/Title';
+
 const App = () => {
-  const scales = ScaleType.names();
   const [preventSleep, handlePreventSleep] = useWakeLock();
 
   return (
     <main className="main p-4">
+      <Title />
       <ActiveChordsList />
       <ChordForm
         preventSleep={preventSleep}

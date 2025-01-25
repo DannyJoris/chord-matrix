@@ -16,7 +16,8 @@ export const ChordItem = ({
     scale, 
     activeChords, 
     setActiveChords, 
-    removeMode 
+    removeMode,
+    title
   } = useChordContext();
 
   if (!info) return null;
@@ -25,7 +26,7 @@ export const ChordItem = ({
     if (!removeMode) return;
     setActiveChords(chordIds => {
       const newchordIds = chordIds.filter(c => c !== cell);
-      updateURL(tonic, scale, newchordIds, highlight, modalInterchangeScale);
+      updateURL(tonic, scale, newchordIds, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
       return newchordIds;
     });
   };

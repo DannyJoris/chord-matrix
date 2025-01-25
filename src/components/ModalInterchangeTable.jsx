@@ -77,10 +77,10 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
     const newValue = e.target.checked;
     if (showSevenths) {
       setSeventhRomans(newValue);
-      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, newValue);
+      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, newValue, title);
     } else {
       setTriadRomans(newValue);
-      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, newValue, seventhRomans);
+      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, newValue, seventhRomans, title);
     }
   };
 

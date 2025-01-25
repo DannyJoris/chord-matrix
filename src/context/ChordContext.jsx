@@ -21,6 +21,7 @@ export const ChordProvider = ({ children }) => {
   const [showAllRomans, setShowAllRomans] = useState(initialParams.showAllRomans);
   const [triadRomans, setTriadRomans] = useState(initialParams.triadRomans);
   const [seventhRomans, setSeventhRomans] = useState(initialParams.seventhRomans);
+  const [title, setTitle] = useState(initialParams.title);
 
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
 
@@ -136,7 +137,7 @@ export const ChordProvider = ({ children }) => {
       const newactiveChords = activeChords.includes(chordId)
         ? activeChords.filter(item => item !== chordId)
         : [...activeChords, chordId];
-      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale, triadRomans, seventhRomans);
+      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
       return newactiveChords;
     });
   };
@@ -172,7 +173,9 @@ export const ChordProvider = ({ children }) => {
     triadRomans,
     setTriadRomans,
     seventhRomans,
-    setSeventhRomans
+    setSeventhRomans,
+    title,
+    setTitle
   };
 
   return (

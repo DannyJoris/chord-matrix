@@ -26,7 +26,10 @@ export const ActiveChordsList = () => {
     nonDiatonicCounter,
     modalInterchangeScale,
     isModalInterchangeDiatonic,
-    isDiatonicAddRoman
+    isDiatonicAddRoman,
+    triadRomans,
+    seventhRomans,
+    title
   } = useChordContext();
 
   const getChordInfo = (chord) => {
@@ -75,7 +78,7 @@ export const ActiveChordsList = () => {
         const oldIndex = items.indexOf(active.id);
         const newIndex = items.indexOf(over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        updateURL(tonic, scale, newItems, highlight, modalInterchangeScale);
+        updateURL(tonic, scale, newItems, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
         return newItems;
       });
     }

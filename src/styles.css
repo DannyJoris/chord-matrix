@@ -183,11 +183,11 @@ table td:not(:first-child) {
 }
 
 .cell-duplicate.cell-toggle {
-  outline: 2px solid rgba(255, 105, 180, 0.3);
+  outline: 2px solid rgba(255, 105, 180, 0.2);
 }
 
 .cell-duplicate.cell-toggle .badge-top-left {
-  background-color: rgba(255, 105, 180, 0.3) !important;
+  background-color: rgba(255, 105, 180, 0.2) !important;
 }
 
 .cell-with-left-border {

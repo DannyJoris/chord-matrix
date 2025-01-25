@@ -7,7 +7,12 @@ export const useURLState = (initialState, key) => {
   const setValue = useCallback((value) => {
     const newValue = typeof value === 'function' ? value(state) : value;
     setState(newValue);
-    updateURL({ [key]: newValue });
+    // For arrays, ensure they're properly handled in the URL
+    if (Array.isArray(newValue)) {
+      updateURL({ [key]: [...newValue] });
+    } else {
+      updateURL({ [key]: newValue });
+    }
   }, [key, state]);
 
   return [state, setValue];

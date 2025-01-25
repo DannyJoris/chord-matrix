@@ -21,8 +21,10 @@ export const updateURL = (updates = {}) => {
     const paramKey = paramMap[key];
     if (!paramKey) return;
 
-    if (key === 'chordIds' && value.length) {
-      params.set(paramKey, value.join(','));
+    if (key === 'chordIds') {
+      if (value && value.length > 0) {
+        params.set(paramKey, value.join(','));
+      }
     } else if (typeof value === 'boolean' && value) {
       params.set(paramKey, '1');
     } else if (value) {

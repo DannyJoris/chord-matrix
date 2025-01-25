@@ -1,17 +1,23 @@
-import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { Scale, Note } from 'tonal';
-import { getInitialParamsFromURL, updateURL } from '../utils/url';
+import { getInitialParamsFromURL } from '../utils/url';
 import { getChordMatrix } from '../utils/chordMatrix';
+import { useURLState } from '../hooks/useURLState';
 
 const ChordContext = createContext(null);
 
 export const ChordProvider = ({ children }) => {
   const initialParams = getInitialParamsFromURL();
-  const [tonic, setTonic] = useState(initialParams.tonic);
-  const [scale, setScale] = useState(initialParams.scale);
-  const [modalInterchangeScale, setModalInterchangeScale] = useState(initialParams.modalInterchangeScale);
-  const [activeChords, setActiveChords] = useState(initialParams.chordIds);
-  const [highlight, setHighlight] = useState(initialParams.highlight);
+  
+  const [tonic, setTonic] = useURLState(initialParams.tonic, 'tonic');
+  const [scale, setScale] = useURLState(initialParams.scale, 'scale');
+  const [modalInterchangeScale, setModalInterchangeScale] = useURLState(initialParams.modalInterchangeScale, 'modalInterchangeScale');
+  const [activeChords, setActiveChords] = useURLState(initialParams.chordIds, 'chordIds');
+  const [highlight, setHighlight] = useURLState(initialParams.highlight, 'highlight');
+  const [triadRomans, setTriadRomans] = useURLState(initialParams.triadRomans, 'triadRomans');
+  const [seventhRomans, setSeventhRomans] = useURLState(initialParams.seventhRomans, 'seventhRomans');
+  const [title, setTitle] = useURLState(initialParams.title, 'title');
+  
   const [diatonicNotes, setDiatonicNotes] = useState([]);
   const [normalizedDiatonicNotes, setNormalizedDiatonicNotes] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -19,9 +25,6 @@ export const ChordProvider = ({ children }) => {
   const [modalInterchangeDiatonicNotes, setModalInterchangeDiatonicNotes] = useState([]);
   const [normalizedModalInterchangeDiatonicNotes, setNormalizedModalInterchangeDiatonicNotes] = useState([]);
   const [showAllRomans, setShowAllRomans] = useState(initialParams.showAllRomans);
-  const [triadRomans, setTriadRomans] = useState(initialParams.triadRomans);
-  const [seventhRomans, setSeventhRomans] = useState(initialParams.seventhRomans);
-  const [title, setTitle] = useState(initialParams.title);
 
   const chords = useMemo(() => getChordMatrix(tonic, scale), [tonic, scale]);
 
@@ -132,15 +135,14 @@ export const ChordProvider = ({ children }) => {
 
   const chordIsActive = (chordId) => activeChords.includes(chordId);
 
-  const handleChordToggle = (chordId) => {
-    setActiveChords(activeChords => {
-      const newactiveChords = activeChords.includes(chordId)
-        ? activeChords.filter(item => item !== chordId)
-        : [...activeChords, chordId];
-      updateURL(tonic, scale, newactiveChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
-      return newactiveChords;
+  const handleChordToggle = useCallback((chordId) => {
+    setActiveChords(current => {
+      const newChords = current.includes(chordId)
+        ? current.filter(item => item !== chordId)
+        : [...current, chordId];
+      return newChords;
     });
-  };
+  }, [setActiveChords]);
 
   const value = {
     tonic,

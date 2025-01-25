@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { useChordContext } from '../context/ChordContext';
-import { updateURL } from '../utils/url';
 
 export const Title = () => {
-  const { title, setTitle, tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans } = useChordContext();
+  const { title, setTitle } = useChordContext();
   const [isEditing, setIsEditing] = useState(!title);
 
   const handleTitleChange = (e) => {
-    const newTitle = e.target.value;
-    setTitle(newTitle);
-    updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, newTitle);
+    setTitle(e.target.value);
   };
 
   const handleDone = () => {

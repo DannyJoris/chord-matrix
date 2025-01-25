@@ -3,7 +3,6 @@ import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { useChordContext } from '../context/ChordContext';
-import { updateURL } from '../utils/url';
 import { replaceAccidental } from '../utils/notes';
 import { arrayMove } from '@dnd-kit/sortable';
 import { SortableChordItem } from './SortableChordItem';
@@ -12,8 +11,6 @@ import { getChordId } from '../utils/chordIdentifier';
 
 export const ActiveChordsList = () => {
   const {
-    tonic,
-    scale,
     activeChords,
     setActiveChords,
     highlight,
@@ -24,12 +21,8 @@ export const ActiveChordsList = () => {
     setRemoveMode,
     isDiatonic,
     nonDiatonicCounter,
-    modalInterchangeScale,
     isModalInterchangeDiatonic,
     isDiatonicAddRoman,
-    triadRomans,
-    seventhRomans,
-    title
   } = useChordContext();
 
   const getChordInfo = (chord) => {
@@ -74,13 +67,10 @@ export const ActiveChordsList = () => {
     const { active, over } = event;
     
     if (active.id !== over.id) {
-      setActiveChords((items) => {
-        const oldIndex = items.indexOf(active.id);
-        const newIndex = items.indexOf(over.id);
-        const newItems = arrayMove(items, oldIndex, newIndex);
-        updateURL(tonic, scale, newItems, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
-        return newItems;
-      });
+      const oldIndex = activeChords.indexOf(active.id);
+      const newIndex = activeChords.indexOf(over.id);
+      const newItems = arrayMove(activeChords, oldIndex, newIndex);
+      setActiveChords(newItems);
     }
   };
 

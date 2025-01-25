@@ -1,22 +1,34 @@
-export const updateURL = (
-  tonic,
-  scale,
-  chordIds,
-  highlight,
-  modalInterchangeScale,
-  triadRomans,
-  seventhRomans,
-  title
-) => {
+export const updateURL = (updates = {}) => {
   const params = new URLSearchParams();
-  if (tonic) params.set('to', tonic);
-  if (scale) params.set('s', scale);
-  if (chordIds.length) params.set('ch', chordIds.join(','));
-  if (highlight) params.set('hl', '1');
-  if (modalInterchangeScale) params.set('mis', modalInterchangeScale);
-  if (triadRomans) params.set('tr', '1');
-  if (seventhRomans) params.set('sr', '1');
-  if (title) params.set('t', title);
+  
+  const paramMap = {
+    tonic: 'to',
+    scale: 's',
+    chordIds: 'ch',
+    highlight: 'hl',
+    modalInterchangeScale: 'mis',
+    triadRomans: 'tr',
+    seventhRomans: 'sr',
+    title: 't'
+  };
+
+  // Get current params
+  const current = getInitialParamsFromURL();
+  const merged = { ...current, ...updates };
+
+  // Set params based on merged values
+  Object.entries(merged).forEach(([key, value]) => {
+    const paramKey = paramMap[key];
+    if (!paramKey) return;
+
+    if (key === 'chordIds' && value.length) {
+      params.set(paramKey, value.join(','));
+    } else if (typeof value === 'boolean' && value) {
+      params.set(paramKey, '1');
+    } else if (value) {
+      params.set(paramKey, value);
+    }
+  });
   
   window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
 };

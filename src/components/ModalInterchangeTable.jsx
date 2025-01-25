@@ -1,10 +1,9 @@
 import React from 'react';
-import { Chord, Scale, Note, Interval } from 'tonal';
+import { Chord, Scale } from 'tonal';
 import { replaceAccidental, getScales, getHepatonicScales } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { getChordId } from '../utils/chordIdentifier';
 import { addRoman } from '../utils/roman';
-import { updateURL } from '../utils/url';
 
 export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
   const { 
@@ -77,10 +76,8 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
     const newValue = e.target.checked;
     if (showSevenths) {
       setSeventhRomans(newValue);
-      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, triadRomans, newValue, title);
     } else {
       setTriadRomans(newValue);
-      updateURL(tonic, scale, activeChords, highlight, modalInterchangeScale, newValue, seventhRomans, title);
     }
   };
 

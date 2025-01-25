@@ -1,7 +1,6 @@
 import React from 'react';
 import { getSelectedNotes, getDiatonicScales, getHepatonicScales, replaceAccidental } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
-import { updateURL } from '../utils/url';
 
 export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
   const {
@@ -9,39 +8,28 @@ export const ChordForm = ({ preventSleep, onPreventSleepChange }) => {
     setTonic,
     scale,
     setScale,
-    modalInterchangeScale,
-    setModalInterchangeScale,
-    activeChords,
     highlight,
     setHighlight,
+    modalInterchangeScale,
+    setModalInterchangeScale,
     diatonicNotes,
     modalInterchangeDiatonicNotes,
-    triadRomans,
-    seventhRomans
   } = useChordContext();
 
   const handleTonic = (e) => {
-    const value = e.target.value;
-    setTonic(value);
-    updateURL(value, scale, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
+    setTonic(e.target.value);
   };
 
   const handleScale = (e) => {
-    const value = e.target.value;
-    setScale(value);
-    updateURL(tonic, value, activeChords, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
+    setScale(e.target.value);
   };
 
   const handleHighlight = (e) => {
-    const newHighlight = e.target.checked;
-    setHighlight(newHighlight);
-    updateURL(tonic, scale, activeChords, newHighlight, modalInterchangeScale, triadRomans, seventhRomans, title);
+    setHighlight(e.target.checked);
   };
 
   const handleModalInterchange = (e) => {
-    const value = e.target.value;
-    setModalInterchangeScale(value);
-    updateURL(tonic, scale, activeChords, highlight, value, triadRomans, seventhRomans, title);
+    setModalInterchangeScale(e.target.value);
   };
 
   return (

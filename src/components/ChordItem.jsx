@@ -1,6 +1,5 @@
 import React from 'react';
 import { useChordContext } from '../context/ChordContext';
-import { updateURL } from '../utils/url';
 
 export const ChordItem = ({
   cell,
@@ -8,27 +7,20 @@ export const ChordItem = ({
   diatonic,
   nonDiatonicCount,
   highlight,
-  modalInterchangeScale,
   modalInterchangeDiatonic
 }) => {
   const { 
-    tonic, 
-    scale, 
     activeChords, 
     setActiveChords, 
     removeMode,
-    title
   } = useChordContext();
 
   if (!info) return null;
 
   const handleRemoveChord = () => {
     if (!removeMode) return;
-    setActiveChords(chordIds => {
-      const newchordIds = chordIds.filter(c => c !== cell);
-      updateURL(tonic, scale, newchordIds, highlight, modalInterchangeScale, triadRomans, seventhRomans, title);
-      return newchordIds;
-    });
+    const newChordIds = activeChords.filter(c => c !== cell);
+    setActiveChords(newChordIds);
   };
 
   return (

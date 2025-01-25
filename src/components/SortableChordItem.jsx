@@ -8,7 +8,6 @@ export const SortableChordItem = ({ cell, info, chord, diatonic, modalInterchang
   const { activeChords } = useChordContext();
   
   if (!cell) return null;
-  const itemRef = React.useRef(null);
   
   const style = {
     transform: CSS.Transform.toString(transform),

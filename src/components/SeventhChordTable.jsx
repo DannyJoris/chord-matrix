@@ -3,6 +3,7 @@ import { Chord } from 'tonal';
 import { replaceAccidental } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { addRoman } from '../utils/roman';
+
 export const SeventhChordTable = () => {
   const { diatonicNotes, tonic } = useChordContext();
   const [triad1, setTriad1] = useState([]);

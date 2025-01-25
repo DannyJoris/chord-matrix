@@ -69,8 +69,7 @@ export const ActiveChordsList = () => {
     if (active.id !== over.id) {
       const oldIndex = activeChords.indexOf(active.id);
       const newIndex = activeChords.indexOf(over.id);
-      const newItems = arrayMove(activeChords, oldIndex, newIndex);
-      setActiveChords(newItems);
+      setActiveChords(arrayMove(activeChords, oldIndex, newIndex));
     }
   };
 

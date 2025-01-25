@@ -136,11 +136,11 @@ export const ChordProvider = ({ children }) => {
   const chordIsActive = (chordId) => activeChords.includes(chordId);
 
   const handleChordToggle = useCallback((chordId) => {
-    setActiveChords(current => {
-      const newChords = current.includes(chordId)
-        ? current.filter(item => item !== chordId)
-        : [...current, chordId];
-      return newChords;
+    setActiveChords(prevChords => {
+      if (prevChords.includes(chordId)) {
+        return prevChords.filter(id => id !== chordId);
+      }
+      return [...prevChords, chordId];
     });
   }, [setActiveChords]);
 

@@ -3,7 +3,7 @@ import { useChordContext } from '../context/ChordContext';
 
 export const Title = () => {
   const { title, setTitle } = useChordContext();
-  const [isEditing, setIsEditing] = useState(!title);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);

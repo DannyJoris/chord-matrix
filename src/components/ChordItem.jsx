@@ -19,8 +19,7 @@ export const ChordItem = ({
 
   const handleRemoveChord = () => {
     if (!removeMode) return;
-    const newChordIds = activeChords.filter(c => c !== cell);
-    setActiveChords(newChordIds);
+    setActiveChords(prevChords => prevChords.filter(c => c !== cell));
   };
 
   return (

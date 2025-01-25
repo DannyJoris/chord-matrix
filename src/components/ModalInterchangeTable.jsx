@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chord, Scale } from 'tonal';
+import { Chord, Scale, Note, Interval } from 'tonal';
 import { replaceAccidental, getScales, getHepatonicScales } from '../utils/notes';
 import { useChordContext } from '../context/ChordContext';
 import { getChordId } from '../utils/chordIdentifier';
@@ -68,6 +68,29 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
     return scaleChords.some(scaleChord => getChordId(scaleChord) === getChordId(chord));
   };
 
+  const addRoman = (chord, position) => {
+    let roman = '';
+    const majorRomans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    const majorSemitones = [0, 2, 4, 5, 7, 9, 11];
+
+    const alias = chord.aliases[0];
+    const firstNote = chord.notes[0];
+    const distance = Note.distance(tonic, firstNote);
+    const semitones = Interval.semitones(distance);
+
+    if (semitones < majorSemitones[position]) {
+      roman += replaceAccidental('b');
+    } else if (semitones > majorSemitones[position]) {
+      roman += replaceAccidental('#');
+    }
+
+    roman += ['Major', 'Augmented'].includes(chord.quality) ? majorRomans[position] : majorRomans[position].toLowerCase();
+    roman += ' ';
+    roman += ['M', 'm'].includes(alias) ? '' : alias;
+
+    return roman;
+  };
+
   return (
     <div className="table-container-wrapper">
       <div className="table-container">
@@ -94,9 +117,9 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
                     {currentScale}
                   </th>
                   {triads.map((chord, i) => {
-                    const roman = isDiatonicAddRoman(chord, isModalScale);
                     const chordId = getChordId(chord);
                     const isActive = chordIsActive(chordId);
+                    const roman = addRoman(chord, i);
                     return (
                       <td
                         key={`${currentScale}-${i}`}
@@ -114,11 +137,9 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
                             {activeChords.indexOf(chordId) + 1}
                           </span>
                         )}
-                        {roman && (
-                          <span className="badge badge-top-right rounded-pill bg-info">
-                            {roman}
-                          </span>
-                        )}
+                        <span className="badge badge-top-right rounded-pill bg-info">
+                          {roman}
+                        </span>
                         {chord.notes.map(n => replaceAccidental(n)).join(' ')}
                       </td>
                     );

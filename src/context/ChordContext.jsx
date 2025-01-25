@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useMemo, useEffect } from '
 import { Scale, Note } from 'tonal';
 import { getInitialParamsFromURL, updateURL } from '../utils/url';
 import { getChordMatrix } from '../utils/chordMatrix';
-import { getChordId } from '../utils/chordIdentifier';
 
 const ChordContext = createContext(null);
 

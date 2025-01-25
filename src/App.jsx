@@ -8,7 +8,6 @@ import { ModalInterchangeTable } from './components/ModalInterchangeTable';
 import { ScaleType } from 'tonal';
 const App = () => {
   const scales = ScaleType.names();
-  console.log(scales);
   const [preventSleep, handlePreventSleep] = useWakeLock();
 
   return (

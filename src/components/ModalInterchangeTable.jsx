@@ -85,7 +85,6 @@ export const ModalInterchangeTable = ({ showSevenths = false, width }) => {
   };
 
   const showRomanLabel = (chord, i, currentScale = null) => {
-    console.log(scale, modalInterchangeScale);
     const scaleSelected = scale || modalInterchangeScale;
     const isScale = scaleSelected && [scale, modalInterchangeScale, 'ionian'].includes(currentScale);
     if ((showSevenths && seventhRomans) || (!showSevenths && triadRomans) || isScale) {

@@ -31,9 +31,12 @@ export const ActiveChordsList = () => {
     const roman = isDiatonicAddRoman(chord);
     const notes = chord.notes.map(note => replaceAccidental(note)).join(' ');
 
+    // For major chords, don't include the 'M' type
+    const type = chord.aliases[0] === 'M' ? '' : chord.aliases[0];
+
     return {
       tonic: replaceAccidental(chord.tonic),
-      type: chord.aliases[0],
+      type,
       roman,
       notes
     };

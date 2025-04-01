@@ -42,35 +42,3 @@ export const getChordId = (chord) => {
 
   return '';
 };
-
-// export const getChordFromIdentifier = (identifier, chords) => {
-//   if (!identifier || !chords) return null;
-  
-//   const [rootChroma, chroma] = identifier.split('_');
-//   const rootNum = parseInt(rootChroma, 10);
-  
-//   // If we have a chroma string
-//   if (chroma?.length === 12) {
-//     for (const row of chords) {
-//       for (const chord of row) {
-//         if (Note.chroma(chord.tonic) === rootNum && chord.chroma === chroma) {
-//           return chord;
-//         }
-//       }
-//     }
-//   }
-  
-//   // Fallback to note comparison
-//   const chromas = identifier.split('_').map(Number);
-//   for (const row of chords) {
-//     for (const chord of row) {
-//       if (!chord.notes) continue;
-//       const chordChromas = chord.notes.map(note => Note.chroma(note)).sort();
-//       if (chromas.every((chroma, i) => chroma === chordChromas[i])) {
-//         return chord;
-//       }
-//     }
-//   }
-  
-//   return null;
-// };

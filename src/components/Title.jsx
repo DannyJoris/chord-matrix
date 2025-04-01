@@ -1,17 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useChordContext } from '../context/ChordContext';
 
 export const Title = () => {
   const { title, setTitle } = useChordContext();
   const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(title);
 
   const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+    setEditValue(e.target.value);
   };
 
   const handleDone = () => {
+    setTitle(editValue);
     setIsEditing(false);
   };
+
+  const handleCancel = () => {
+    setEditValue(title);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      handleCancel();
+    } else if (e.key === 'Enter') {
+      handleDone();
+    }
+  };
+
+  useEffect(() => {
+    setEditValue(title);
+  }, [title, isEditing]);
 
   if (isEditing) {
     return (
@@ -22,10 +41,13 @@ export const Title = () => {
             type="text"
             className="form-control"
             id="title"
-            value={title}
+            value={editValue}
             onChange={handleTitleChange}
+            onKeyDown={handleKeyDown}
+            autoFocus
           />
-          <button onClick={handleDone} className="btn btn-sm btn-link px-0 ms-0">done</button>
+          <button onClick={handleDone} className="btn btn-sm btn-link px-0 mx-1">save</button>
+          <button onClick={handleCancel} className="btn btn-sm btn-link px-0 mx-1">cancel</button>
         </div>
       </div>
     );

@@ -1,5 +1,6 @@
-import { Chord, Note, Scale } from 'tonal';
+import { Note, Scale } from 'tonal';
 import { getChromaticNotes } from './notes';
+import { getChords } from './getChords';
 
 export const getChordMatrix = (tonic, scale) => {
   const chromaticNotes = getChromaticNotes();
@@ -17,22 +18,6 @@ export const getChordMatrix = (tonic, scale) => {
   });
 
   return rowNotes.map(note => {
-    return [
-      Chord.getChord('M', note),
-      Chord.getChord('m', note),
-      Chord.getChord('dim', note),
-      Chord.getChord('7', note),
-      Chord.getChord('maj7', note),
-      Chord.getChord('m7', note),
-      Chord.getChord('mM7', note),
-      Chord.getChord('m7b5', note),
-      Chord.getChord('aug', note),
-      Chord.getChord('sus4', note),
-      Chord.getChord('sus2', note),
-      Chord.getChord('add9', note),
-      Chord.getChord('madd9', note),
-      Chord.getChord('maj13', note),
-      Chord.getChord('13', note),
-    ];
+    return getChords(note);
   });
 };

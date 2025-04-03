@@ -1,33 +1,18 @@
-import React from 'react';
-import { useWakeLock } from './hooks/useWakeLock';
-import { ChordForm } from './components/ChordForm';
-import { SeventhChordTable } from './components/SeventhChordTable';
-import { ActiveChordsList } from './components/ActiveChordsList';
-import { ChordMatrix } from './components/ChordMatrix';
-import { ModalInterchangeTable } from './components/ModalInterchangeTable';
+import React, { useState } from 'react';
 import { Title } from './components/Title';
+import NavTabs from './components/NavTabs';
+import Matrix from './components/Matrix';
+import Quizzes from './components/Quizzes';
 
 const App = () => {
-  const [preventSleep, handlePreventSleep] = useWakeLock();
+  const [activeTab, setActiveTab] = useState('matrix');
 
   return (
     <main className="main p-4">
       <Title />
-      <ActiveChordsList />
-      <ChordForm
-        preventSleep={preventSleep}
-        onPreventSleepChange={handlePreventSleep}
-      />
-      <ChordMatrix />
-      <div className="d-flex gap-4 mt-4">
-        <ModalInterchangeTable />
-      </div>
-      <div className="d-flex gap-4 mt-4">
-        <ModalInterchangeTable showSevenths={true} width="1000px" />
-      </div>
-      <div className="d-flex gap-4 mt-4">
-        <SeventhChordTable />
-      </div>
+      <NavTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      {activeTab === 'matrix' && <Matrix />}
+      {activeTab === 'quizzes' && <Quizzes />}
     </main>
   )
 };

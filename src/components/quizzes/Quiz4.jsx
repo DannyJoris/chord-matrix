@@ -1,24 +1,22 @@
-import { getQuizChordData } from '../../utils/quizzes';
+import { Note } from 'tonal';
+
 import { useState, useEffect } from 'react';
 import { recordGuess, getQuizStats, resetStats, getAccuracy } from '../../utils/quizStats';
+import { getRandomChord } from '../../utils/getChords';
+import { getSelectedNotesMerged } from '../../utils/notes';
 
-import { getIntervals } from '../../utils/intervals';
+const QUIZ_ID = 'quiz4';
 
-const QUIZ_ID = 'quiz2';
-
-const Quiz2 = () => {
+const Quiz4 = () => {
   const [randomChord, setRandomChord] = useState(null);
   const [isIncorrect, setIsIncorrect] = useState([]);
   const [isCorrect, setIsCorrect] = useState([]);
   const [stats, setStats] = useState({ totalGuesses: 0, correctGuesses: 0 });
-  const quizData = getQuizChordData();
-  const intervalOptions = getIntervals();
-  const allCorrect = randomChord && isCorrect.length === randomChord.intervals.length;
 
-  const getRandomChord = () => {
-    const randomIndex = Math.floor(Math.random() * quizData.length);
-    return quizData[randomIndex];
-  };
+  const noteOptions = getSelectedNotesMerged();
+  const allCorrect = randomChord && isCorrect.length === randomChord.notes.length;
+
+  console.log(randomChord);
 
   useEffect(() => {
     setRandomChord(getRandomChord());
@@ -26,7 +24,7 @@ const Quiz2 = () => {
   }, []);
 
   useEffect(() => {
-      if (randomChord && isCorrect.length === randomChord.intervals.length) {
+      if (randomChord && isCorrect.length === randomChord.notes.length) {
         const updatedStats = recordGuess(QUIZ_ID, true);
         setStats(updatedStats);
         setTimeout(() => {
@@ -42,9 +40,9 @@ const Quiz2 = () => {
 
     if (option.includes('/')) {
       const optionParts = option.split('/').map(part => part.trim());
-      correct = optionParts.some(part => randomChord.intervals.includes(part));
+      correct = optionParts.some(part => randomChord.notes.map(note => Note.simplify(note)).includes(part));
     } else {
-      correct = randomChord.intervals.includes(option);
+      correct = randomChord.notes.map(note => Note.simplify(note)).includes(option);
     }
 
     if (correct) {
@@ -80,7 +78,7 @@ const Quiz2 = () => {
 
   return (
     <div className="quiz">
-      <h2 className="quiz-title h5">Guess the intervals from the chord</h2>
+      <h2 className="quiz-title h5">Guess the notes from the chord</h2>
       
       <div className="quiz-stats">
         <p className="small">
@@ -98,12 +96,12 @@ const Quiz2 = () => {
         <div className="quiz-content">
           <ul className="quiz-question-list">
             <li className="quiz-question-list-item">
-              {randomChord.alias}
+              {randomChord.symbol.replaceAll('#', '♯').replaceAll('b', '♭')}
             </li>
           </ul>
           <hr className="quiz-divider" />
           <ul className="quiz-answer-list">
-            {intervalOptions.map(option => (
+            {noteOptions.map(option => (
               <li key={option} className="quiz-answer-item">
                 <button 
                   className={`btn ${getButtonClass(option)}`}
@@ -111,7 +109,7 @@ const Quiz2 = () => {
                   disabled={isCorrect.includes(option) || isIncorrect.includes(option) || allCorrect}
                   style={buttonStyle}
                 >
-                  {option}
+                  {option.replaceAll('#', '♯').replaceAll('b', '♭')}
                 </button>
               </li>
             ))}
@@ -122,4 +120,4 @@ const Quiz2 = () => {
   );
 };
 
-export default Quiz2;
+export default Quiz4;

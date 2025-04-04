@@ -1,6 +1,6 @@
 import { getChords } from './getChords';
 
-export const getQuiz1 = () => {
+export const getQuizChordData = () => {
   const chords = getChords('C');
   return chords.map(chord => ({
     alias: chord.aliases[0],

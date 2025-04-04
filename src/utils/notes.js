@@ -6,6 +6,14 @@ export const getSelectedNotes = () => {
   return ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
 };
 
+export const getSelectedNotesMerged = () => {
+  return ['C', 'C# / Db', 'D', 'D# / Eb', 'E', 'F', 'F# / Gb', 'G', 'G# / Ab', 'A', 'A# / Bb', 'B'];
+};
+
+export const getRandomNote = () => {
+  return getSelectedNotes()[Math.floor(Math.random() * getSelectedNotes().length)];
+};
+
 export const getScales = () => {
   return [
     ...getDiatonicScales(),

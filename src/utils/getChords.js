@@ -1,4 +1,5 @@
 import { Chord } from 'tonal';
+import { getRandomNote } from './notes';
 
 export const getChords = (note) => {
   return [
@@ -23,4 +24,10 @@ export const getChords = (note) => {
     Chord.getChord('maj13', note),
     Chord.getChord('13', note),
   ];
+};
+
+export const getRandomChord = () => {
+  const note = getRandomNote();
+  const chords = getChords(note);
+  return chords[Math.floor(Math.random() * chords.length)];
 };

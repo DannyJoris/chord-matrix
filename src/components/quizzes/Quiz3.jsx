@@ -1,21 +1,17 @@
 import { getQuizChordData } from '../../utils/quizzes';
 import { useState, useEffect } from 'react';
 import { recordGuess, getQuizStats, resetStats, getAccuracy } from '../../utils/quizStats';
+import { getRandomChord } from '../../utils/getChords';
 
-const QUIZ_ID = 'quiz1';
+const QUIZ_ID = 'quiz3';
 
-const Quiz1 = () => {
+const Quiz3 = () => {
   const [randomChord, setRandomChord] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [isCorrect, setIsCorrect] = useState(false);
   const [stats, setStats] = useState({ totalGuesses: 0, correctGuesses: 0 });
   const quizData = getQuizChordData();
   const options = quizData.map(chord => chord.alias);
-  
-  const getRandomChord = () => {
-    const randomIndex = Math.floor(Math.random() * quizData.length);
-    return quizData[randomIndex];
-  };
 
   useEffect(() => {
     setRandomChord(getRandomChord());
@@ -23,7 +19,9 @@ const Quiz1 = () => {
   }, []);
 
   const handleOptionClick = (option) => {
-    const correct = option === randomChord.alias;
+    console.log(option);
+    console.log(randomChord);
+    const correct = option === randomChord.aliases[0];
 
     const updatedStats = recordGuess(QUIZ_ID, correct);
     setStats(updatedStats);
@@ -53,7 +51,7 @@ const Quiz1 = () => {
 
   const getButtonClass = (option) => {
     if (selectedOptions.includes(option)) {
-      if (option === randomChord.alias) {
+      if (option === randomChord.aliases[0]) {
         return 'btn-success';
       }
       return 'btn-secondary';
@@ -69,7 +67,7 @@ const Quiz1 = () => {
 
   return (
     <div className="quiz">
-      <h2 className="quiz-title h5">Guess the chord quality from the intervals</h2>
+      <h2 className="quiz-title h5">Guess the chord quality from the notes</h2>
       
       <div className="quiz-stats">
         <p className="small">
@@ -86,9 +84,9 @@ const Quiz1 = () => {
       {randomChord && (
         <div className="quiz-content">
           <ul className="quiz-question-list">
-            {randomChord.intervals.map(interval => (
-              <li key={interval} className="quiz-question-list-item">
-                {interval}
+            {randomChord.notes.map(note => (
+              <li key={note} className="quiz-question-list-item">
+                {note}
               </li>
             ))}
           </ul>
@@ -113,4 +111,4 @@ const Quiz1 = () => {
   );
 };
 
-export default Quiz1;
+export default Quiz3;

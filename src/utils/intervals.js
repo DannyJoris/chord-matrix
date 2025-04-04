@@ -1,6 +1,4 @@
-import { getChords } from './getChords';
-
-export const getAllIntervals = () => [
+export const getIntervals = () => [
   "1P",
   "2m",
   "2M",
@@ -25,39 +23,18 @@ export const getAllIntervals = () => [
   "13M"
 ];
 
-export const getIntervalsFromChords = () => {
-  const chords = getChords();
-  const naturalSortIntervals = (intervals) => {
-    return [...intervals].sort((a, b) => {
-      // Extract numeric part and quality part
-      const numA = parseInt(a.match(/^\d+/)[0], 10);
-      const numB = parseInt(b.match(/^\d+/)[0], 10);
-
-      // If numbers differ, sort by number
-      if (numA !== numB) {
-        return numA - numB;
-      }
-
-      const qualityA = a.replace(/^\d+/, '');
-      const qualityB = b.replace(/^\d+/, '');
-      
-      // Define order for qualities
-      const qualityOrder = { 'P': 1, 'm': 2, 'M': 3, 'd': 4, 'A': 5 };
-      return (qualityOrder[qualityA] || 99) - (qualityOrder[qualityB] || 99);
-    });
-  };
-
-  // Collect all unique interval symbols from the chords
-  const allIntervals = naturalSortIntervals(
-    chords.reduce((acc, chord) => {
-      chord.intervals.forEach(interval => {
-        if (!acc.includes(interval)) {
-          acc.push(interval);
-        }
-      });
-      return acc;
-    }, [])
-  );
-
-  return allIntervals;
-};
+export const getEnharmonicIntervals = () => [
+  "1P",
+  "2m/9m",               // 1 semitone
+  "2M",                  // 2 semitones
+  "2A/3m/9A/10m",        // 3 semitones
+  "3M/10M",              // 4 semitones
+  "4P/11P",              // 5 semitones
+  "4A/5d/11A",           // 6 semitones (tritone)
+  "5P/12P",              // 7 semitones
+  "5A/6m",               // 8 semitones
+  "6M/13m",              // 9 semitones
+  "6A/7m/13M",           // 10 semitones
+  "7M",                  // 11 semitones
+  "8P",                  // 12 semitones
+];
